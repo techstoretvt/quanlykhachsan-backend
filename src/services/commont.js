@@ -378,6 +378,19 @@ const routes = {
     layNoiDungBaiVietKS: '/api/v1/lay-noi-dung-bai-viet-ks',
     suaBaiVietks: '/api/v1/sua-bai-viet-ks',
     xoaBaiVietks: '/api/v1/xoa-bai-viet-ks',
+    themChiNhanhKS: '/api/v1/them-chi-nhanh-ks',
+    layDanhSachChiNhanhKS: '/api/v1/lay-danh-sach-chi-nahnh-ks',
+    themPhongKS: '/api/v1/them-phong-khach-san',
+    themAnhPhongKS: '/api/v1/them-anh-phong-ks',
+    layDanhSachPhongKS: '/api/v2/lay-danh-sach-phong-ks',
+    datPhongKSAdmin: '/api/v1/dat-phong-ks-admin',
+    checkStatusPhongKS: '/api/v2/check-status-phong-ks',
+    huyDatPhongKsAdmin: '/api/v1/huy-dat-phong-ks-admin',
+    getInfoKhachHangBySdt: '/api/v1/get-info-khach-hang-by-sdt',
+    getListDisableDateDatPhongKS: '/api/v1/get-list-disable-dat-phong-ks',
+    getListDatPhongKSTheoThang: '/api/v1/get-list-dat-phong-ks-theo-thang',
+    nhanPhongKs: '/api/v1/nhan-phong-ks',
+    traPhongKsAdmin: '/api/v1/tra-phong-ks-admin',
 };
 
 module.exports = {

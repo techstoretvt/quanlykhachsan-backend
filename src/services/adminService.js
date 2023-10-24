@@ -5479,6 +5479,727 @@ const layNoiDungBaiVietKS = (data) => {
     });
 };
 
+const themChiNhanhKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.tenChiNhanh || !data.diaChi || !data.tenTinhThanh) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+                // idAnh: file.filename,
+                // anh: file.path,
+                console.log('vao 1');
+
+
+                let [newTP, created] = await db.ksThanhPho.findOrCreate({
+                    where: {
+                        tenThanhPho: data.tenTinhThanh.toLowerCase().trim()
+                    },
+                    defaults: {
+                        id: uuidv4()
+                    }
+                })
+
+                console.log('vao 2');
+
+                let [newChiNhanh, created2] = await db.ksChiNhanh.findOrCreate({
+                    where: {
+                        tenChiNhanh: data.tenChiNhanh,
+                        diaChi: data.diaChi,
+                        idThanhPho: newTP.id
+                    },
+                    defaults: {
+                        id: uuidv4()
+                    }
+
+                })
+
+                console.log('vao 3');
+
+                if (!created2) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Chi nhánh đã tồn tại!'
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 0,
+                        data: newChiNhanh
+                    });
+
+                }
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const layDanhSachChiNhanhKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let list = await db.ksChiNhanh.findAll()
+
+            resolve({
+                errCode: 0,
+                data: list,
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const themPhongKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idChiNhanh ||
+                !data.tenPhong ||
+                !data.tienIch ||
+                !data.moTa ||
+                !data.soNguoi ||
+                !data.soGiuongDoi ||
+                !data.soPhongTam ||
+                !data.donGia ||
+                !data.dienTich
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+                // idAnh: file.filename,
+                // anh: file.path,
+
+                let newData = await db.ksPhong.create({
+                    id: uuidv4(),
+                    idChiNhanh: data.idChiNhanh,
+                    tenPhong: data.tenPhong,
+                    tienIch: data.tienIch,
+                    moTa: data.moTa,
+                    soNguoi: +data.soNguoi,
+                    soGiuongDoi: +data.soGiuongDoi,
+                    soPhongTam: +data.soPhongTam,
+                    donGia: +data.donGia,
+                    dienTich: +data.dienTich,
+                    khuyenMai: 0,
+                    trangThai: 1,
+                })
+
+                resolve({
+                    errCode: 0,
+                    data: newData
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const themAnhPhongKS = ({ files, data }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let arrImage = files.map(item => {
+                    return {
+                        id: uuidv4(),
+                        idPhong: data.idPhong,
+                        urlAnh: item.path,
+                        idAnh: item.filename,
+                    }
+                })
+
+                await db.ksAnhPhong.bulkCreate(arrImage, {
+                    individualHooks: true,
+                })
+
+
+
+                resolve({
+                    errCode: 0,
+                });
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const layDanhSachPhongKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // idAnh: file.filename,
+            // anh: file.path,
+
+            let idChiNhanh = data.idChiNhanh || ""
+            let tenPhong = data.tenPhong || ""
+            let limit = +data.limit || 10
+            let page = +data.page || 1
+
+            let listPhong = await db.ksPhong.findAll({
+                where: {
+                    idChiNhanh: {
+                        [Op.substring]: idChiNhanh
+                    },
+                    tenPhong: {
+                        [Op.substring]: tenPhong
+                    }
+                },
+                limit,
+                offset: (page - 1) * limit,
+                raw: false
+            })
+
+
+            resolve({
+                errCode: 0,
+                data: listPhong
+            });
+
+
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const datPhongKSAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.timeStart ||
+                !data.timeEnd ||
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let [newKhach, created] = await db.ksKhachHang.findOrCreate({
+                    where: {
+                        sdt: data.sdt
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        hoTen: data.hoTen,
+                        email: data.email,
+                        diem: 0
+                    },
+                    raw: false
+                })
+                if (!created) {
+                    newKhach.hoTen = data.hoTen
+                    newKhach.email = data.email
+                    await newKhach.save()
+                }
+
+                let phong = await db.ksPhong.findOne({
+                    where: {
+                        id: data.idPhong
+                    }
+                })
+
+                if (!phong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: "Không tìm thấy phòng"
+                    });
+                }
+
+                //check ngay
+                let checkTime = await db.ksDatPhong.findOne({
+                    where: {
+                        timeEnd: {
+                            [Op.gte]: +data.timeStart  // >=
+                        },
+                        timeStart: {
+                            [Op.lte]: +data.timeEnd // <=
+                        },
+                        trangThai: {
+                            [Op.ne]: 3
+                        }
+                    }
+                })
+                if (checkTime) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: "Đã có khách đạt phòng trong khoản thời gian này!"
+                    });
+                }
+
+
+
+                //tao don dat phong
+                let tien = phong.donGia
+                let khuyenMai = phong.khuyenMai
+                if (newKhach.diem >= 5) {
+                    khuyenMai += 10
+                    newKhach.diem = 0
+                    await newKhach.save()
+                }
+
+                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100)
+
+                console.log('thanh tien: ', tien, thanhTien);
+
+
+                await db.ksDatPhong.create({
+                    id: uuidv4(),
+                    idPhong: data.idPhong,
+                    idKhach: newKhach.id,
+                    timeStart: data.timeStart,
+                    timeEnd: data.timeEnd,
+                    khuyenMai: khuyenMai,
+                    thanhTien: thanhTien,
+                    loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
+                    isThanhToan: 0, //0 chua, 1 roi
+                    trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                })
+
+                //gửi email kèm link
+
+
+
+                resolve({
+                    errCode: 0,
+                });
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const checkStatusPhongKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const timestamp = today.getTime() / 1000;
+
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        idPhong: data.idPhong,
+                        timeStart: {
+                            [Op.lte]: timestamp
+                        },
+                        timeEnd: {
+                            [Op.gte]: timestamp
+                        },
+                        trangThai: {
+                            [Op.ne]: 3
+                        }
+                    },
+                    include: [
+                        {
+                            model: db.ksKhachHang
+                        }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 0,
+                        data: null
+                    })
+                }
+
+                resolve({
+                    errCode: 0,
+                    data: datPhong
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const huyDatPhongKsAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.idDatPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: data.idDatPhong,
+                        idPhong: data.idPhong
+                    },
+                    raw: false
+                })
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy đơn đạt phòng nào'
+                    });
+                }
+
+                datPhong.trangThai = 3
+                await datPhong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const getInfoKhachHangBySdt = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let khachHang = await db.ksKhachHang.findOne({
+                    where: {
+                        sdt: data.sdt
+                    }
+                })
+
+                if (!khachHang) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: "Not found user"
+                    });
+                }
+
+
+                resolve({
+                    errCode: 0,
+                    data: khachHang
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getListDisableDateDatPhongKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const timestamp = today.getTime() / 1000;
+
+                let listDatPhong = await db.ksDatPhong.findAll({
+                    where: {
+                        idPhong: data.idPhong,
+                        timeStart: {
+                            [Op.gte]: timestamp
+                        },
+                        trangThai: {
+                            [Op.ne]: 3
+                        }
+                    }
+                })
+
+
+
+
+                resolve({
+                    errCode: 0,
+                    data: listDatPhong
+
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getListDatPhongKSTheoThang = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.typeSearch
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                if (data.typeSearch === 'all') {
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        where: {
+                            idPhong: data.idPhong,
+                        },
+                        include: [
+                            {
+                                model: db.ksKhachHang
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+
+                else if (data.typeSearch === 'fromMonth') {
+                    let monthStart = +data.monthStart || 0
+
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        where: {
+                            idPhong: data.idPhong,
+                            timeStart: {
+                                [Op.gte]: monthStart
+                            }
+                        },
+                        include: [
+                            {
+                                model: db.ksKhachHang
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+                else if (data.typeSearch === 'monthToMonth') {
+                    let monthStart = +data.monthStart || 0
+                    let monthEnd = +data.monthEnd || 0
+
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        where: {
+                            idPhong: data.idPhong,
+                            timeStart: {
+                                [Op.gte]: monthStart
+                            },
+                            timeEnd: {
+                                [Op.lte]: monthEnd
+                            }
+                        },
+                        include: [
+                            {
+                                model: db.ksKhachHang
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+
+
+
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Not found logic!',
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const nhanPhongKs = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.idDatPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: data.idDatPhong,
+                        idPhong: data.idPhong
+                    },
+                    raw: false
+                })
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy đơn đạt phòng nào'
+                    });
+                }
+
+                datPhong.trangThai = 2
+                datPhong.isThanhToan = 1
+                await datPhong.save()
+
+                //doanh thu
+                let date = new Date()
+                await db.ksDoanhThu.create({
+                    id: uuidv4(),
+                    thang: date.getMonth() + 1,
+                    nam: date.getFullYear(),
+                    tien: datPhong.thanhTien,
+                    loaiTien: 1, //1 lai, 2 lo
+                    ghiChu: "Khách hàng nhận phòng"
+                })
+
+                //tăng điểm cho khách
+                let khachhang = await db.ksKhachHang.findOne({
+                    where: {
+                        id: datPhong.idKhach
+                    },
+                    raw: false
+                })
+                if (khachhang) {
+                    khachhang.diem = khachhang.diem + 1
+                    await khachhang.save()
+                }
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const traPhongKsAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.idDatPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: data.idDatPhong,
+                        idPhong: data.idPhong
+                    },
+                    raw: false
+                })
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy đơn đạt phòng nào'
+                    });
+                }
+
+                datPhong.trangThai = 3
+                await datPhong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
 
 
 module.exports = {
@@ -5573,5 +6294,18 @@ module.exports = {
     layDanhSachBaiViet,
     suaBaiVietks,
     xoaBaiVietks,
-    layNoiDungBaiVietKS
+    layNoiDungBaiVietKS,
+    themChiNhanhKS,
+    layDanhSachChiNhanhKS,
+    themPhongKS,
+    themAnhPhongKS,
+    layDanhSachPhongKS,
+    datPhongKSAdmin,
+    checkStatusPhongKS,
+    huyDatPhongKsAdmin,
+    getInfoKhachHangBySdt,
+    getListDisableDateDatPhongKS,
+    getListDatPhongKSTheoThang,
+    nhanPhongKs,
+    traPhongKsAdmin
 };

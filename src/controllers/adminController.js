@@ -960,6 +960,152 @@ const xoaBaiVietks = async (req, res, next) => {
     }
 };
 
+const themChiNhanhKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themChiNhanhKS(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const layDanhSachChiNhanhKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.layDanhSachChiNhanhKS();
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const themPhongKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themPhongKS(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const themAnhPhongKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themAnhPhongKS({
+            files: req.files,
+            data: req.query,
+        });
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const layDanhSachPhongKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.layDanhSachPhongKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const datPhongKSAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const checkStatusPhongKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.checkStatusPhongKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const huyDatPhongKsAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.huyDatPhongKsAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getInfoKhachHangBySdt = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getInfoKhachHangBySdt(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListDisableDateDatPhongKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDisableDateDatPhongKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListDatPhongKSTheoThang = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDatPhongKSTheoThang(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const nhanPhongKs = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.nhanPhongKs(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const traPhongKsAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.traPhongKsAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
 
 module.exports = {
     addTypeProduct,
@@ -1055,5 +1201,18 @@ module.exports = {
     layDanhSachBaiViet,
     suaBaiVietks,
     xoaBaiVietks,
-    layNoiDungBaiVietKS
+    layNoiDungBaiVietKS,
+    themChiNhanhKS,
+    layDanhSachChiNhanhKS,
+    themPhongKS,
+    themAnhPhongKS,
+    layDanhSachPhongKS,
+    datPhongKSAdmin,
+    checkStatusPhongKS,
+    huyDatPhongKsAdmin,
+    getInfoKhachHangBySdt,
+    getListDisableDateDatPhongKS,
+    getListDatPhongKSTheoThang,
+    nhanPhongKs,
+    traPhongKsAdmin
 };

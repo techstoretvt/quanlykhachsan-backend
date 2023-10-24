@@ -467,7 +467,79 @@ const initAdminRoute = (app) => {
         adminController.xoaBaiVietks
     );
 
+    router.post(
+        routes.themChiNhanhKS,
+        verifyAccessTokenAdmin,
+        adminController.themChiNhanhKS
+    );
 
+    router.get(
+        routes.layDanhSachChiNhanhKS,
+        adminController.layDanhSachChiNhanhKS
+    );
+
+
+    router.post(
+        routes.themPhongKS,
+        verifyAccessTokenAdmin,
+        adminController.themPhongKS
+    );
+
+    router.post(
+        routes.themAnhPhongKS,
+        verifyAccessTokenAdmin,
+        cloudinary_khachsan.array('file'),
+        adminController.themAnhPhongKS
+    );
+
+    router.get(
+        routes.layDanhSachPhongKS,
+        adminController.layDanhSachPhongKS
+    );
+
+    router.post(
+        routes.datPhongKSAdmin,
+        verifyAccessTokenAdmin,
+        adminController.datPhongKSAdmin
+    );
+
+    router.get(
+        routes.checkStatusPhongKS,
+        adminController.checkStatusPhongKS
+    );
+
+    router.put(
+        routes.huyDatPhongKsAdmin,
+        verifyAccessTokenAdmin,
+        adminController.huyDatPhongKsAdmin
+    );
+
+    router.get(
+        routes.getInfoKhachHangBySdt,
+        adminController.getInfoKhachHangBySdt
+    );
+
+    router.get(
+        routes.getListDisableDateDatPhongKS,
+        adminController.getListDisableDateDatPhongKS
+    );
+
+    router.get(
+        routes.getListDatPhongKSTheoThang,
+        adminController.getListDatPhongKSTheoThang
+    );
+
+    router.put(
+        routes.nhanPhongKs,
+        verifyAccessTokenAdmin,
+        adminController.nhanPhongKs
+    );
+
+    router.put(
+        routes.traPhongKsAdmin,
+        verifyAccessTokenAdmin,
+        adminController.traPhongKsAdmin
+    );
 
 
 
