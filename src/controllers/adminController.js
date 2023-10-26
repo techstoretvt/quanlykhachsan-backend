@@ -1106,6 +1106,83 @@ const traPhongKsAdmin = async (req, res, next) => {
     }
 };
 
+const toggleKhoaPhongKSAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.toggleKhoaPhongKSAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const updateKhuyenMaiPhongKSAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.updateKhuyenMaiPhongKSAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const updateThongTinPhongKsAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.updateThongTinPhongKsAdmin(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListDatPhongKSAllTheoThang = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDatPhongKSAllTheoThang(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const timKiemPhongKsUser = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.timKiemPhongKsUser(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const datPhongKSUser = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSUser(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListDatPhongByIdKhach = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDatPhongByIdKhach(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
 
 module.exports = {
     addTypeProduct,
@@ -1214,5 +1291,12 @@ module.exports = {
     getListDisableDateDatPhongKS,
     getListDatPhongKSTheoThang,
     nhanPhongKs,
-    traPhongKsAdmin
+    traPhongKsAdmin,
+    toggleKhoaPhongKSAdmin,
+    updateKhuyenMaiPhongKSAdmin,
+    updateThongTinPhongKsAdmin,
+    getListDatPhongKSAllTheoThang,
+    timKiemPhongKsUser,
+    datPhongKSUser,
+    getListDatPhongByIdKhach
 };

@@ -391,6 +391,13 @@ const routes = {
     getListDatPhongKSTheoThang: '/api/v1/get-list-dat-phong-ks-theo-thang',
     nhanPhongKs: '/api/v1/nhan-phong-ks',
     traPhongKsAdmin: '/api/v1/tra-phong-ks-admin',
+    toggleKhoaPhongKSAdmin: '/api/v1/toggle-khoa-phong-ks-admin',
+    updateKhuyenMaiPhongKSAdmin: '/api/v1/update-khuyen-mai-phong-ks-admin',
+    updateThongTinPhongKsAdmin: '/api/v1/update-thong-tin-phong-ks-admin',
+    getListDatPhongKSAllTheoThang: '/api/v1/get-list-dat-phong-ks-all-theo-thang',
+    timKiemPhongKsUser: '/api/v1/tim-kiem-phong-ks-user',
+    datPhongKSUser: '/api/v1/dat-phong-ks-user',
+    getListDatPhongByIdKhach: '/api/v1/get-list-dat-phong-by-id-khach',
 };
 
 module.exports = {

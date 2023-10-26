@@ -18,61 +18,15 @@ import commont from './commont';
 const { google } = require('googleapis');
 const createError = require('http-errors');
 import { signAccessToken, signRefreshToken } from '../helpers/JWT_service';
+import Verifier from "email-verifier";
 
-// import { v4 as uuidv4 } from 'uuid';
-// cloudinary.config({
-//     cloud_name: process.env.CLOUDINARY_NAME,
-//     api_key: process.env.CLOUDINARY_KEY,
-//     api_secret: process.env.CLOUDINARY_SECRET
-// });
-
-//timer notifycations
-// setInterval(async () => {
-//     let date = new Date().getTime()
-//     console.log('kiem tra thong bao: ', date);
-//     let notifys = await db.timerNotifys.findAll({
-//         where: {
-//             status: "false",
-//             timer: {
-//                 [Op.lt]: date
-//             }
-//         }
-//     })
-//     if (notifys.length > 0) {
-//         let users = await db.User.findAll({
-//             where: {
-//                 statusUser: {
-//                     [Op.ne]: 'false'
-//                 }
-//             }
-//         })
-//         users = users.filter(user => {
-//             return user.statusUser === 'true' || (user.statusUser * 1) < date
-//         })
-//         notifys.forEach(async item => {
-//             let arr = users.map(user => {
-//                 return {
-//                     id: uuidv4(),
-//                     title: item.title,
-//                     content: item.content,
-//                     redirect_to: item.redirect_to,
-//                     idUser: user.id,
-//                     typeNotify: item.typeNotify,
-//                     timeCreate: date,
-//                     urlImage: item.urlImage ?? ''
-//                 }
-//             })
-//             await db.notifycations.bulkCreate(arr, { individualHooks: true })
-//             handleEmit('new-notify-all', { title: item.title, content: item.content })
-//         })
-//         await db.timerNotifys.update({ status: 'true' }, {
-//             where: {
-//                 status: 'false'
-//             }
-//         })
-//     }
-
-// }, 60000)
+let verifier_email = new Verifier(process.env.API_KEY_VERIFY_EMAIL, {
+    checkCatchAll: false,
+    checkDisposable: false,
+    checkFree: false,
+    validateDNS: false,
+    validateSMTP: true,
+});
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -5735,10 +5689,18 @@ const datPhongKSAdmin = (data) => {
                         errMessage: "Không tìm thấy phòng"
                     });
                 }
+                //check trang thai phong
+                if (phong.trangThai === 2) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: "Phòng đã tạm dừng cho thuê!"
+                    });
+                }
 
                 //check ngay
                 let checkTime = await db.ksDatPhong.findOne({
                     where: {
+                        idPhong: data.idPhong,
                         timeEnd: {
                             [Op.gte]: +data.timeStart  // >=
                         },
@@ -5756,6 +5718,8 @@ const datPhongKSAdmin = (data) => {
                         errMessage: "Đã có khách đạt phòng trong khoản thời gian này!"
                     });
                 }
+
+
 
 
 
@@ -6118,6 +6082,28 @@ const nhanPhongKs = (data) => {
                     });
                 }
 
+                let phong = await db.ksPhong.findOne({
+                    where: {
+                        id: data.idPhong
+                    }
+                })
+
+                if (!phong) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: "Không tìm thấy phòng"
+                    });
+                }
+                //check trang thai phong
+                if (phong.trangThai === 2) {
+                    return resolve({
+                        errCode: 4,
+                        errMessage: "Phòng đã tạm dừng cho thuê!"
+                    });
+                }
+
+
+
                 datPhong.trangThai = 2
                 datPhong.isThanhToan = 1
                 await datPhong.save()
@@ -6200,6 +6186,549 @@ const traPhongKsAdmin = (data) => {
         }
     });
 };
+
+const toggleKhoaPhongKSAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let phong = await db.ksPhong.findOne({
+                    where: {
+                        id: data.idPhong,
+                    },
+                    raw: false
+                })
+                if (!phong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy phòng nào'
+                    });
+                }
+
+                phong.trangThai = phong.trangThai === 1 ? 2 : 1
+                await phong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const updateKhuyenMaiPhongKSAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.khuyenMai
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let phong = await db.ksPhong.findOne({
+                    where: {
+                        id: data.idPhong,
+                    },
+                    raw: false
+                })
+                if (!phong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy phòng nào'
+                    });
+                }
+
+                phong.khuyenMai = +data.khuyenMai
+                await phong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const updateThongTinPhongKsAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong ||
+                !data.tenPhong ||
+                !data.tienIch ||
+                !data.moTa ||
+                !data.soNguoi ||
+                !data.soGiuongDoi ||
+                !data.soPhongTam ||
+                !data.donGia ||
+                !data.dienTich
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let phong = await db.ksPhong.findOne({
+                    where: {
+                        id: data.idPhong,
+                    },
+                    raw: false
+                })
+                if (!phong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy phòng nào'
+                    });
+                }
+
+                phong.tenPhong = data.tenPhong
+                phong.tienIch = data.tienIch
+                phong.moTa = data.moTa
+                phong.soNguoi = +data.soNguoi
+                phong.soGiuongDoi = +data.soGiuongDoi
+                phong.soPhongTam = +data.soPhongTam
+                phong.donGia = +data.donGia
+                phong.dienTich = +data.dienTich
+                await phong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const getListDatPhongKSAllTheoThang = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.typeSearch
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+                console.log("typeSearch", data.typeSearch);
+
+                if (data.typeSearch === 'all') {
+                    let sdt = data.sdt || ''
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        include: [
+                            {
+                                model: db.ksKhachHang,
+                                where: {
+                                    sdt: {
+                                        [Op.substring]: sdt
+                                    }
+                                }
+                            },
+                            {
+                                model: db.ksPhong
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+
+                else if (data.typeSearch === 'fromMonth') {
+                    let monthStart = +data.monthStart || 0
+                    let sdt = data.sdt || ''
+
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        where: {
+                            timeStart: {
+                                [Op.gte]: monthStart
+                            }
+                        },
+                        include: [
+                            {
+                                model: db.ksKhachHang,
+                                where: {
+                                    sdt: {
+                                        [Op.substring]: sdt
+                                    }
+                                }
+                            },
+                            {
+                                model: db.ksPhong
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+                else if (data.typeSearch === 'monthToMonth') {
+                    let monthStart = +data.monthStart || 0
+                    let monthEnd = +data.monthEnd || 0
+                    let sdt = data.sdt || ''
+
+                    let listDatPhong = await db.ksDatPhong.findAll({
+                        where: {
+                            timeStart: {
+                                [Op.gte]: monthStart
+                            },
+                            timeEnd: {
+                                [Op.lte]: monthEnd
+                            }
+                        },
+                        include: [
+                            {
+                                model: db.ksKhachHang,
+                                where: {
+                                    sdt: {
+                                        [Op.substring]: sdt
+                                    }
+                                }
+                            },
+                            {
+                                model: db.ksPhong
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    return resolve({
+                        errCode: 0,
+                        data: listDatPhong
+                    });
+                }
+
+
+
+
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Not found logic!',
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const timKiemPhongKsUser = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idChiNhanh ||
+                !data.soNguoi
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let dsPhongDaDat = await db.ksPhong.findAll({
+                    include: [
+                        {
+                            model: db.ksChiNhanh,
+                            where: {
+                                id: data.idChiNhanh
+                            }
+                        },
+                        {
+                            model: db.ksDatPhong,
+                            where: {
+                                timeStart: {
+                                    [Op.lte]: +data.timeStart || 0
+                                },
+                                timeEnd: {
+                                    [Op.gte]: +data.timeStart || 0
+                                },
+                                trangThai: {
+                                    [Op.ne]: 3
+                                }
+                            }
+                        }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                let arr = dsPhongDaDat.map(item => item.dataValues.id)
+
+                console.log(arr);
+
+                let dsPhongTrong = await db.ksPhong.findAll({
+                    where: {
+                        id: {
+                            [Op.notIn]: arr
+                        },
+                        soNguoi: {
+                            [Op.gte]: +data.soNguoi || 0
+                        }
+                    },
+                    include: [
+                        {
+                            model: db.ksChiNhanh,
+                            where: {
+                                id: data.idChiNhanh
+                            }
+                        },
+                        {
+                            model: db.ksAnhPhong
+                        }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+
+
+
+                resolve({
+                    errCode: 0,
+                    data: dsPhongTrong
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const datPhongKSUser = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong || data.idPhong.length === 0 ||
+                !data.timeStart ||
+                !data.timeEnd ||
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                verifier_email.verify(
+                    data.email,
+                    { hardRefresh: true },
+                    async (err, res) => {
+                        if (err) {
+                            throw err;
+                        }
+                        if (res.smtpCheck === "false") {
+                            resolve({
+                                errCode: 3,
+                                errMessage:
+                                    "Email này không tồn tại, vui lòng kiểm tra lỗi chính tả!",
+                            });
+                            return;
+                        } else {
+
+                            //logic
+                            let [newKhach, created] = await db.ksKhachHang.findOrCreate({
+                                where: {
+                                    sdt: data.sdt
+                                },
+                                defaults: {
+                                    id: uuidv4(),
+                                    hoTen: data.hoTen,
+                                    email: data.email,
+                                    diem: 0
+                                },
+                                raw: false
+                            })
+                            if (!created) {
+                                newKhach.hoTen = data.hoTen
+                                newKhach.email = data.email
+                                await newKhach.save()
+                            }
+
+                            let checkPhong = true
+                            let newArr = []
+                            for (const id of data.idPhong) {
+
+                                let phong = await db.ksPhong.findOne({
+                                    where: {
+                                        id: id
+                                    }
+                                })
+
+                                if (!phong || phong.trangThai === 2) {
+                                    checkPhong = false
+                                }
+
+                                let checkTime = await db.ksDatPhong.findOne({
+                                    where: {
+                                        idPhong: id,
+                                        timeEnd: {
+                                            [Op.gte]: +data.timeStart  // >=
+                                        },
+                                        timeStart: {
+                                            [Op.lte]: +data.timeEnd // <=
+                                        },
+                                        trangThai: {
+                                            [Op.ne]: 3
+                                        }
+                                    }
+                                })
+
+                                if (checkTime) {
+                                    return resolve({
+                                        errCode: 3,
+                                        errMessage: `${phong.tenPhong} đã có người đặt trước`
+                                    });
+                                }
+
+                                let tien = phong.donGia
+                                let khuyenMai = phong.khuyenMai
+                                if (newKhach.diem >= 5) {
+                                    khuyenMai += 10
+                                    newKhach.diem = 0
+                                    await newKhach.save()
+                                }
+
+                                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100)
+
+                                newArr.push({
+                                    id: uuidv4(),
+                                    idPhong: id,
+                                    idKhach: newKhach.id,
+                                    timeStart: data.timeStart,
+                                    timeEnd: data.timeEnd,
+                                    khuyenMai: khuyenMai,
+                                    thanhTien: thanhTien,
+                                    loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
+                                    isThanhToan: 0, //0 chua, 1 roi
+                                    trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                                })
+
+
+
+                            }
+
+                            if (!checkPhong) {
+                                return resolve({
+                                    errCode: 3,
+                                    errMessage: "Không tìm thấy hoặc phòng không còn hoạt động nửa!"
+                                });
+                            }
+
+                            await db.ksDatPhong.bulkCreate(newArr,
+                                { individualHooks: true }
+                            )
+
+                            //gửi email kèm link
+                            commont.sendEmail(data.email,
+                                "Đặt phòng tại TBT Hotel",
+                                `Thông tin chi tiết vui lòng xem tại ...`
+                            );
+
+
+
+                            resolve({
+                                errCode: 0,
+                            });
+
+
+                        }
+                    }
+                );
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const getListDatPhongByIdKhach = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idKhach
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let listDatPhong = await db.ksDatPhong.findAll({
+                    where: {
+                        idKhach: data.idKhach
+                    },
+                    order: ['createdAt']
+                })
+
+
+
+
+                resolve({
+                    errCode: 0,
+                    data: listDatPhong
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
 
 
 module.exports = {
@@ -6307,5 +6836,12 @@ module.exports = {
     getListDisableDateDatPhongKS,
     getListDatPhongKSTheoThang,
     nhanPhongKs,
-    traPhongKsAdmin
+    traPhongKsAdmin,
+    toggleKhoaPhongKSAdmin,
+    updateKhuyenMaiPhongKSAdmin,
+    updateThongTinPhongKsAdmin,
+    getListDatPhongKSAllTheoThang,
+    timKiemPhongKsUser,
+    datPhongKSUser,
+    getListDatPhongByIdKhach
 };

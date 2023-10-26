@@ -542,7 +542,43 @@ const initAdminRoute = (app) => {
     );
 
 
+    router.put(
+        routes.toggleKhoaPhongKSAdmin,
+        verifyAccessTokenAdmin,
+        adminController.toggleKhoaPhongKSAdmin
+    );
 
+    router.put(
+        routes.updateKhuyenMaiPhongKSAdmin,
+        verifyAccessTokenAdmin,
+        adminController.updateKhuyenMaiPhongKSAdmin
+    );
+
+    router.put(
+        routes.updateThongTinPhongKsAdmin,
+        verifyAccessTokenAdmin,
+        adminController.updateThongTinPhongKsAdmin
+    );
+
+    router.get(
+        routes.getListDatPhongKSAllTheoThang,
+        adminController.getListDatPhongKSAllTheoThang
+    );
+
+    router.get(
+        routes.timKiemPhongKsUser,
+        adminController.timKiemPhongKsUser
+    );
+
+    router.post(
+        routes.datPhongKSUser,
+        adminController.datPhongKSUser
+    );
+
+    router.get(
+        routes.getListDatPhongByIdKhach,
+        adminController.getListDatPhongByIdKhach
+    );
 
 
 

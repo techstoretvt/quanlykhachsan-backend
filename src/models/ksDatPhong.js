@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             ksDatPhong.belongsTo(models.ksKhachHang, { foreignKey: 'idKhach' });
+            ksDatPhong.belongsTo(models.ksPhong, { foreignKey: 'idPhong' });
             // casi.hasMany(models.baiHat_caSi, { foreignKey: 'idCaSi' });
         }
     }

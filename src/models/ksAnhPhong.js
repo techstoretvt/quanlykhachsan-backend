@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     class ksAnhPhong extends Model {
         static associate(models) {
             // define association here
-            // casi.hasMany(models.quanTamCaSi, { foreignKey: 'idCaSi' });
+            ksAnhPhong.belongsTo(models.ksPhong, { foreignKey: 'idPhong' });
             // casi.hasMany(models.baiHat_caSi, { foreignKey: 'idCaSi' });
         }
     }
