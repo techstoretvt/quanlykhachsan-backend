@@ -34,7 +34,7 @@ const sendEmail = async (toEmail, title, contentHTML) => {
     });
 
     let info = await transporter.sendMail({
-        from: `"TechStoreTvT ⚔ ⚓ 👻" <${process.env.EMAIL}>`,
+        from: `"TBT Hotel" <${process.env.EMAIL}>`,
         to: toEmail,
         subject: title,
         html: contentHTML,
@@ -396,8 +396,13 @@ const routes = {
     updateThongTinPhongKsAdmin: '/api/v1/update-thong-tin-phong-ks-admin',
     getListDatPhongKSAllTheoThang: '/api/v1/get-list-dat-phong-ks-all-theo-thang',
     timKiemPhongKsUser: '/api/v1/tim-kiem-phong-ks-user',
-    datPhongKSUser: '/api/v1/dat-phong-ks-user',
+    datPhongKSLoai1User: '/api/v1/dat-phong-ks-loai1-user',
+    datPhongKSLoai2User: '/api/v1/dat-phong-ks-loai2-user',
+    datPhongKSLoai3User: '/api/v1/dat-phong-ks-loai3-user',
+    datPhongKSLoai2UserSuccess: '/api/v1/dat-phong-ks-loai2-user-success',
     getListDatPhongByIdKhach: '/api/v1/get-list-dat-phong-by-id-khach',
+    guiMaHuyPhongAdmin: '/api/v1/gui-ma-huy-phong-admin',
+    huyPhongByUser: '/api/v1/huy-phong-by-user',
 };
 
 module.exports = {

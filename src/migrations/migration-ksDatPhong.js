@@ -38,6 +38,10 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
 
+            verifyCode: {
+                type: Sequelize.STRING
+            },
+
 
             createdAt: {
                 allowNull: false,

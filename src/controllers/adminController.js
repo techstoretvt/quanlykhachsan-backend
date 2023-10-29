@@ -1161,12 +1161,54 @@ const timKiemPhongKsUser = async (req, res, next) => {
     }
 };
 
-const datPhongKSUser = async (req, res, next) => {
+const datPhongKSLoai1User = async (req, res, next) => {
     try {
         //call service data
-        let data = await adminService.datPhongKSUser(req.body);
+        let data = await adminService.datPhongKSLoai1User(req.body);
 
         return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+const datPhongKSLoai2User = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSLoai2User(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const datPhongKSLoai2UserSuccess = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSLoai2UserSuccess(req.query);
+        if (data.errCode === 0) {
+            res.redirect(`${process.env.LINK_FONTEND}/thong-tin-dat-phong/${data.idKhach}`);
+        } else {
+            return res.status(200).json(data);
+        }
+
+    } catch (e) {
+        next(e);
+    }
+};
+
+const datPhongKSLoai3User = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSLoai3User(
+            {
+                file: req.file,
+                data: req.query,
+            }
+        );
+
+        return res.status(200).json(data);
+
     } catch (e) {
         next(e);
     }
@@ -1176,6 +1218,28 @@ const getListDatPhongByIdKhach = async (req, res, next) => {
     try {
         //call service data
         let data = await adminService.getListDatPhongByIdKhach(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const guiMaHuyPhongAdmin = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.guiMaHuyPhongAdmin(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const huyPhongByUser = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.huyPhongByUser(req.body);
 
         return res.status(200).json(data);
     } catch (e) {
@@ -1297,6 +1361,11 @@ module.exports = {
     updateThongTinPhongKsAdmin,
     getListDatPhongKSAllTheoThang,
     timKiemPhongKsUser,
-    datPhongKSUser,
-    getListDatPhongByIdKhach
+    datPhongKSLoai1User,
+    datPhongKSLoai2User,
+    datPhongKSLoai2UserSuccess,
+    datPhongKSLoai3User,
+    getListDatPhongByIdKhach,
+    guiMaHuyPhongAdmin,
+    huyPhongByUser
 };

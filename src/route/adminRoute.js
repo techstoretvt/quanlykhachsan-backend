@@ -571,13 +571,43 @@ const initAdminRoute = (app) => {
     );
 
     router.post(
-        routes.datPhongKSUser,
-        adminController.datPhongKSUser
+        routes.datPhongKSLoai1User,
+        adminController.datPhongKSLoai1User
+    );
+
+    router.post(
+        routes.datPhongKSLoai2User,
+        adminController.datPhongKSLoai2User
+    );
+    router.get(
+        routes.datPhongKSLoai2UserSuccess,
+        adminController.datPhongKSLoai2UserSuccess
     );
 
     router.get(
         routes.getListDatPhongByIdKhach,
         adminController.getListDatPhongByIdKhach
+    );
+
+    router.get(
+        routes.getListDatPhongByIdKhach,
+        adminController.getListDatPhongByIdKhach
+    );
+
+    router.get(
+        routes.guiMaHuyPhongAdmin,
+        adminController.guiMaHuyPhongAdmin
+    );
+
+    router.put(
+        routes.huyPhongByUser,
+        adminController.huyPhongByUser
+    );
+
+    router.post(
+        routes.datPhongKSLoai3User,
+        cloudinary_khachsan.single('file'),
+        adminController.datPhongKSLoai3User
     );
 
 

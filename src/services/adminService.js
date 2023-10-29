@@ -19,6 +19,13 @@ const { google } = require('googleapis');
 const createError = require('http-errors');
 import { signAccessToken, signRefreshToken } from '../helpers/JWT_service';
 import Verifier from "email-verifier";
+const paypal = require("paypal-rest-sdk");
+
+paypal.configure({
+    mode: "sandbox", //sandbox or live
+    client_id: process.env.PAYPAL_CLIENT_ID,
+    client_secret: process.env.PAYPAL_CLIENT_SECRET,
+});
 
 let verifier_email = new Verifier(process.env.API_KEY_VERIFY_EMAIL, {
     checkCatchAll: false,
@@ -5732,7 +5739,9 @@ const datPhongKSAdmin = (data) => {
                     await newKhach.save()
                 }
 
-                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100)
+                let soNgayThue = (+data.timeEnd - +data.timeStart) / 86400 + 1
+
+                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
 
                 console.log('thanh tien: ', tien, thanhTien);
 
@@ -5751,7 +5760,13 @@ const datPhongKSAdmin = (data) => {
                 })
 
                 //gửi email kèm link
-
+                let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
+                commont.sendEmail(data.email,
+                    "Đặt phòng tại TBT Hotel",
+                    `Thông tin chi tiết vui lòng xem tại: 
+                    <a href="${linkTT}">${linkTT}</a>
+                    `
+                );
 
 
                 resolve({
@@ -5853,6 +5868,14 @@ const huyDatPhongKsAdmin = (data) => {
 
                 datPhong.trangThai = 3
                 await datPhong.save()
+
+                let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
+                commont.sendEmail(data.email,
+                    "Hủy phòng tại TBT Hotel",
+                    `Phòng của bạn đã bị hủy, Thông tin chi tiết vui lòng xem tại: 
+                    <a href="${linkTT}">${linkTT}</a>
+                    `
+                );
 
 
                 resolve({
@@ -6539,7 +6562,7 @@ const timKiemPhongKsUser = (data) => {
     });
 };
 
-const datPhongKSUser = (data) => {
+const datPhongKSLoai1User = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (
@@ -6636,7 +6659,9 @@ const datPhongKSUser = (data) => {
                                     await newKhach.save()
                                 }
 
-                                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100)
+                                let soNgayThue = (+data.timeEnd - +data.timeStart) / 86400 + 1
+
+                                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
 
                                 newArr.push({
                                     id: uuidv4(),
@@ -6667,9 +6692,12 @@ const datPhongKSUser = (data) => {
                             )
 
                             //gửi email kèm link
+                            let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
                             commont.sendEmail(data.email,
                                 "Đặt phòng tại TBT Hotel",
-                                `Thông tin chi tiết vui lòng xem tại ...`
+                                `Thông tin chi tiết vui lòng xem tại: 
+                                <a href="${linkTT}">${linkTT}</a>
+                                `
                             );
 
 
@@ -6692,6 +6720,490 @@ const datPhongKSUser = (data) => {
     });
 };
 
+const datPhongKSLoai2User = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong || data.idPhong.length === 0 ||
+                !data.timeStart ||
+                !data.timeEnd ||
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                console.log('vao 0');
+
+                // verifier_email.verify(
+                //     data.email,
+                //     { hardRefresh: true },
+                //     async (err, res) => {
+                //         if (err) {
+                //             throw err;
+                //         }
+                //         if (res.smtpCheck === "false") {
+                //             resolve({
+                //                 errCode: 3,
+                //                 errMessage:
+                //                     "Email này không tồn tại, vui lòng kiểm tra lỗi chính tả!",
+                //             });
+                //             return;
+                //         } else {
+
+                console.log('vao 1');
+
+                //logic
+                let [newKhach, created] = await db.ksKhachHang.findOrCreate({
+                    where: {
+                        sdt: data.sdt
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        hoTen: data.hoTen,
+                        email: data.email,
+                        diem: 0
+                    },
+                    raw: false
+                })
+                if (!created) {
+                    newKhach.hoTen = data.hoTen
+                    newKhach.email = data.email
+                    await newKhach.save()
+                }
+
+                let checkPhong = true
+                let newArr = []
+                let totals = 0;
+
+                for (const id of data.idPhong) {
+
+                    let phong = await db.ksPhong.findOne({
+                        where: {
+                            id: id
+                        },
+                        include: [
+                            {
+                                model: db.ksChiNhanh
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+                    if (!phong || phong.trangThai === 2) {
+                        checkPhong = false
+                    }
+
+                    let checkTime = await db.ksDatPhong.findOne({
+                        where: {
+                            idPhong: id,
+                            timeEnd: {
+                                [Op.gte]: +data.timeStart  // >=
+                            },
+                            timeStart: {
+                                [Op.lte]: +data.timeEnd // <=
+                            },
+                            trangThai: {
+                                [Op.ne]: 3
+                            }
+                        }
+                    })
+
+                    if (checkTime) {
+                        return resolve({
+                            errCode: 3,
+                            errMessage: `${phong.tenPhong} đã có người đặt trước`
+                        });
+                    }
+
+                    let tien = phong.donGia
+                    let khuyenMai = phong.khuyenMai
+                    if (newKhach.diem >= 5) {
+                        khuyenMai += 10
+                    }
+
+                    let soNgayThue = (+data.timeEnd - +data.timeStart) / 86400 + 1
+
+                    let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
+                    totals += Math.floor(thanhTien / 23000) * soNgayThue;
+
+                    newArr.push({
+                        name: phong.tenPhong,
+                        sku: phong?.ksChiNhanh?.tenChiNhanh,
+                        price: Math.floor(thanhTien / 23000) + ".00",
+                        currency: "USD",
+                        quantity: soNgayThue,
+                    })
+
+
+                }
+
+                if (!checkPhong) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: "Không tìm thấy hoặc phòng không còn hoạt động nửa!"
+                    });
+                }
+
+
+
+                const create_payment_json = {
+                    intent: "sale",
+                    payer: {
+                        payment_method: "paypal",
+                    },
+                    redirect_urls: {
+                        return_url: `${process.env.LINK_BACKEND
+                            }/api/v1/dat-phong-ks-loai2-user-success?price=${totals + ".00"
+                            }&idPhong=${data.idPhong}&idKhach=${newKhach.id}&timeStart=${data.timeStart}&timeEnd=${data.timeEnd}`,
+                        cancel_url: `${process.env.LINK_FONTEND}/`,
+                    },
+                    transactions: [
+                        {
+                            item_list: {
+                                items: newArr,
+                            },
+                            amount: {
+                                currency: "USD",
+                                total: totals + ".00",
+                            },
+                            description: "TBT Hotel dịch vụ chất lượng.",
+                        },
+                    ],
+                };
+
+                console.log('vao 2');
+
+                paypal.payment.create(create_payment_json, function (error, payment) {
+                    if (error) {
+                        throw error;
+                    } else {
+                        for (let i = 0; i < payment.links.length; i++) {
+                            if (payment.links[i].rel === "approval_url") {
+                                // res.redirect(payment.links[i].href);
+                                resolve({
+                                    errCode: 0,
+                                    errMessage: "ok",
+                                    link: payment.links[i].href,
+                                });
+                            }
+                        }
+                    }
+                });
+
+
+                //         }
+                //     }
+                // );
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const datPhongKSLoai2UserSuccess = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const payerId = data.PayerID;
+            const paymentId = data.paymentId;
+            const price = data.price;
+            const listIdPhong = data.idPhong.split(',')
+            const idKhach = data.idKhach
+            const timeStart = data.timeStart
+            const timeEnd = data.timeEnd
+
+            console.log("listIdPhong: ", listIdPhong);
+
+            const execute_payment_json = {
+                payer_id: payerId,
+                transactions: [
+                    {
+                        amount: {
+                            currency: "USD",
+                            total: price,
+                        },
+                    },
+                ],
+            };
+            paypal.payment.execute(
+                paymentId,
+                execute_payment_json,
+                async function (error, payment) {
+                    if (error) {
+                        console.log(error.response);
+                        throw error;
+                    } else {
+                        //logic
+
+                        let newArr = []
+                        let khach = await db.ksKhachHang.findOne({
+                            where: {
+                                id: idKhach
+                            },
+                            raw: false
+                        })
+
+                        for (const id of listIdPhong) {
+
+                            let phong = await db.ksPhong.findOne({
+                                where: {
+                                    id: id
+                                },
+                                include: [
+                                    {
+                                        model: db.ksChiNhanh
+                                    }
+                                ],
+                                raw: false,
+                                nest: true
+                            })
+
+
+
+
+                            let tien = phong.donGia
+                            let khuyenMai = phong.khuyenMai
+                            if (khach.diem >= 5) {
+                                khuyenMai += 10
+                                khach.diem = 0
+                                await khach.save()
+                            }
+
+                            let soNgayThue = (+timeEnd - +timeStart) / 86400 + 1
+
+                            let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
+
+                            newArr.push({
+                                id: uuidv4(),
+                                idPhong: id,
+                                idKhach: idKhach,
+                                timeStart: timeStart,
+                                timeEnd: timeEnd,
+                                khuyenMai: khuyenMai,
+                                thanhTien: thanhTien,
+                                loaiThanhToan: 2,//1 tien mat, 2 paypal, 3 orther bank
+                                isThanhToan: 1, //0 chua, 1 roi
+                                trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                            })
+
+
+                        }
+
+                        await db.ksDatPhong.bulkCreate(newArr,
+                            { individualHooks: true }
+                        )
+
+                        //gửi email kèm link
+                        let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${idKhach}`
+                        commont.sendEmail(khach.email,
+                            "Đặt phòng tại TBT Hotel",
+                            `Thông tin chi tiết vui lòng xem tại: 
+                            <a href="${linkTT}">${linkTT}</a>
+                            `
+                        );
+
+                        resolve({
+                            errCode: 0,
+                            idKhach
+                        });
+
+
+                    }
+                }
+            );
+
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const datPhongKSLoai3User = ({ file, data }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong || data.idPhong.length === 0 ||
+                !data.timeStart ||
+                !data.timeEnd ||
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                verifier_email.verify(
+                    data.email,
+                    { hardRefresh: true },
+                    async (err, res) => {
+                        if (err) {
+                            throw err;
+                        }
+                        if (res.smtpCheck === "false") {
+                            resolve({
+                                errCode: 3,
+                                errMessage:
+                                    "Email này không tồn tại, vui lòng kiểm tra lỗi chính tả!",
+                            });
+                            return;
+                        } else {
+
+                            //logic
+                            let [newKhach, created] = await db.ksKhachHang.findOrCreate({
+                                where: {
+                                    sdt: data.sdt
+                                },
+                                defaults: {
+                                    id: uuidv4(),
+                                    hoTen: data.hoTen,
+                                    email: data.email,
+                                    diem: 0
+                                },
+                                raw: false
+                            })
+                            if (!created) {
+                                newKhach.hoTen = data.hoTen
+                                newKhach.email = data.email
+                                await newKhach.save()
+                            }
+
+                            let checkPhong = true
+                            let newArr = []
+                            let strIdPhong = ''
+
+                            for (const id of data.idPhong) {
+
+                                let phong = await db.ksPhong.findOne({
+                                    where: {
+                                        id: id
+                                    }
+                                })
+
+                                if (!phong || phong.trangThai === 2) {
+                                    checkPhong = false
+                                }
+
+                                let checkTime = await db.ksDatPhong.findOne({
+                                    where: {
+                                        idPhong: id,
+                                        timeEnd: {
+                                            [Op.gte]: +data.timeStart  // >=
+                                        },
+                                        timeStart: {
+                                            [Op.lte]: +data.timeEnd // <=
+                                        },
+                                        trangThai: {
+                                            [Op.ne]: 3
+                                        }
+                                    }
+                                })
+
+                                if (checkTime) {
+                                    return resolve({
+                                        errCode: 3,
+                                        errMessage: `${phong.tenPhong} đã có người đặt trước`
+                                    });
+                                }
+
+                                let tien = phong.donGia
+                                let khuyenMai = phong.khuyenMai
+                                if (newKhach.diem >= 5) {
+                                    khuyenMai += 10
+                                    newKhach.diem = 0
+                                    await newKhach.save()
+                                }
+
+                                let soNgayThue = (+data.timeEnd - +data.timeStart) / 86400 + 1
+
+                                let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
+
+                                newArr.push({
+                                    id: uuidv4(),
+                                    idPhong: id,
+                                    idKhach: newKhach.id,
+                                    timeStart: data.timeStart,
+                                    timeEnd: data.timeEnd,
+                                    khuyenMai: khuyenMai,
+                                    thanhTien: thanhTien,
+                                    loaiThanhToan: 3,//1 tien mat, 2 paypal, 3 orther bank
+                                    isThanhToan: 0, //0 chua, 1 roi
+                                    trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                                })
+
+                                if (!strIdPhong) {
+                                    strIdPhong = id.toString()
+                                }
+                                else {
+                                    strIdPhong += "," + id.toString()
+                                }
+
+
+                            }
+
+                            if (!checkPhong) {
+                                return resolve({
+                                    errCode: 3,
+                                    errMessage: "Không tìm thấy hoặc phòng không còn hoạt động nửa!"
+                                });
+                            }
+
+                            await db.ksDatPhong.bulkCreate(newArr,
+                                { individualHooks: true }
+                            )
+
+                            await db.ksChuyenKhoan.create({
+                                id: uuidv4(),
+                                idDatPhong: strIdPhong,
+                                trangThai: 0, //0 chua xem, 1 da xac minh, 3 ko hop le
+                                urlAnh: file.path,
+                                ghiChu: "",
+                            })
+
+
+                            //gửi email kèm link
+                            let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
+                            commont.sendEmail(data.email,
+                                "Đặt phòng tại TBT Hotel",
+                                `Thông tin chi tiết vui lòng xem tại: 
+                                <a href="${linkTT}">${linkTT}</a>
+                                `
+                            );
+
+
+
+                            resolve({
+                                errCode: 0,
+                            });
+
+
+                        }
+                    }
+                );
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
 
 const getListDatPhongByIdKhach = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -6710,7 +7222,19 @@ const getListDatPhongByIdKhach = (data) => {
                     where: {
                         idKhach: data.idKhach
                     },
-                    order: ['createdAt']
+                    include: [
+                        {
+                            model: db.ksPhong,
+                            include: [
+                                {
+                                    model: db.ksChiNhanh
+                                }
+                            ]
+                        },
+                    ],
+                    order: [['createdAt', 'desc']],
+                    raw: false,
+                    nest: true
                 })
 
 
@@ -6719,6 +7243,121 @@ const getListDatPhongByIdKhach = (data) => {
                 resolve({
                     errCode: 0,
                     data: listDatPhong
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const guiMaHuyPhongAdmin = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idDatPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: data.idDatPhong
+                    },
+                    raw: false,
+                })
+
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy đơn đặt phòng nào!'
+
+                    });
+                }
+
+                let khachHang = await db.ksKhachHang.findOne({
+                    where: {
+                        id: datPhong.idKhach
+                    }
+                })
+
+                if (!khachHang) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: 'Không tìm thấy email!'
+
+                    });
+                }
+
+
+                let rd = Math.floor(Math.random() * 900000) + 100000;
+                console.log("verifyCode: ", rd);
+                datPhong.verifyCode = rd.toString();
+                await datPhong.save()
+
+
+                commont.sendEmail(
+                    khachHang.email,
+                    "Mã xác nhận TBT HoTel",
+                    `<h3>Mã xác nhận của bạn là: ${rd}</h3>
+                    <div>Lưu ý: không gửi mã này cho bất kì ai.</div>
+                    `
+                );
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const huyPhongByUser = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idDatPhong || !data.verifyCode
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: data.idDatPhong,
+                        verifyCode: data.verifyCode
+                    },
+                    raw: false,
+                })
+
+                if (!datPhong) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy đơn đặt phòng nào!'
+
+                    });
+                }
+
+                datPhong.trangThai = 3;
+                datPhong.verifyCode = ''
+                await datPhong.save()
+
+
+                resolve({
+                    errCode: 0,
                 });
 
             }
@@ -6842,6 +7481,11 @@ module.exports = {
     updateThongTinPhongKsAdmin,
     getListDatPhongKSAllTheoThang,
     timKiemPhongKsUser,
-    datPhongKSUser,
-    getListDatPhongByIdKhach
+    datPhongKSLoai1User,
+    datPhongKSLoai2User,
+    datPhongKSLoai2UserSuccess,
+    datPhongKSLoai3User,
+    getListDatPhongByIdKhach,
+    guiMaHuyPhongAdmin,
+    huyPhongByUser
 };
