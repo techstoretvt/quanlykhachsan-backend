@@ -1247,6 +1247,40 @@ const huyPhongByUser = async (req, res, next) => {
     }
 };
 
+const getListChuyenKhoanLoai3 = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListChuyenKhoanLoai3(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const huyThanhToanLoai3 = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.huyThanhToanLoai3(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const xacNhanThanhToanLoai3 = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.xacNhanThanhToanLoai3(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+
 
 module.exports = {
     addTypeProduct,
@@ -1367,5 +1401,8 @@ module.exports = {
     datPhongKSLoai3User,
     getListDatPhongByIdKhach,
     guiMaHuyPhongAdmin,
-    huyPhongByUser
+    huyPhongByUser,
+    getListChuyenKhoanLoai3,
+    huyThanhToanLoai3,
+    xacNhanThanhToanLoai3
 };

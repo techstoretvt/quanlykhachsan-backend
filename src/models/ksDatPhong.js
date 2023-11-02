@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
             ksDatPhong.belongsTo(models.ksKhachHang, { foreignKey: 'idKhach' });
             ksDatPhong.belongsTo(models.ksPhong, { foreignKey: 'idPhong' });
+            ksDatPhong.hasOne(models.ksChuyenKhoan, { foreignKey: 'idDatPhong' });
             // casi.hasMany(models.baiHat_caSi, { foreignKey: 'idCaSi' });
         }
     }

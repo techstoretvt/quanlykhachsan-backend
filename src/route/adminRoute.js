@@ -610,6 +610,26 @@ const initAdminRoute = (app) => {
         adminController.datPhongKSLoai3User
     );
 
+    router.get(
+        routes.getListChuyenKhoanLoai3,
+        adminController.getListChuyenKhoanLoai3
+    );
+
+    router.put(
+        routes.huyThanhToanLoai3,
+        verifyAccessTokenAdmin,
+        adminController.huyThanhToanLoai3
+    );
+
+    router.put(
+        routes.xacNhanThanhToanLoai3,
+        verifyAccessTokenAdmin,
+        adminController.xacNhanThanhToanLoai3
+    );
+
+
+
+
 
 
     return app.use('/', router);

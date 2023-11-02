@@ -7367,6 +7367,134 @@ const huyPhongByUser = (data) => {
     });
 };
 
+const getListChuyenKhoanLoai3 = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let listChuyenKhoan = await db.ksChuyenKhoan.findAll({
+                where: {
+                    trangThai: 0
+                },
+                include: [
+                    {
+                        model: db.ksDatPhong,
+                        include: [
+                            { model: db.ksPhong },
+                            { model: db.ksKhachHang },
+                        ]
+                    }
+                ],
+                raw: false,
+                nest: true
+            });
+
+
+
+            resolve({
+                errCode: 0,
+                data: listChuyenKhoan
+            });
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const huyThanhToanLoai3 = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idChuyenKhoan
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let chuyenKhoan = await db.ksChuyenKhoan.findOne({
+                    where: {
+                        id: data.idChuyenKhoan
+                    },
+                    raw: false
+                })
+
+                if (!chuyenKhoan) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Not found chuyenKhoan by id'
+                    });
+                }
+
+                chuyenKhoan.trangThai = 2
+                await chuyenKhoan.save()
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const xacNhanThanhToanLoai3 = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idChuyenKhoan
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let chuyenKhoan = await db.ksChuyenKhoan.findOne({
+                    where: {
+                        id: data.idChuyenKhoan
+                    },
+                    raw: false
+                })
+
+                if (!chuyenKhoan) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Not found chuyenKhoan by id'
+                    });
+                }
+
+                chuyenKhoan.trangThai = 1
+                await chuyenKhoan.save()
+
+                let datPhong = await db.ksDatPhong.findOne({
+                    where: {
+                        id: chuyenKhoan.idDatPhong
+                    },
+                    raw: false
+                })
+
+                datPhong.isThanhToan = 1
+                await datPhong.save()
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 
 
 
@@ -7487,5 +7615,8 @@ module.exports = {
     datPhongKSLoai3User,
     getListDatPhongByIdKhach,
     guiMaHuyPhongAdmin,
-    huyPhongByUser
+    huyPhongByUser,
+    getListChuyenKhoanLoai3,
+    huyThanhToanLoai3,
+    xacNhanThanhToanLoai3
 };

@@ -403,6 +403,9 @@ const routes = {
     getListDatPhongByIdKhach: '/api/v1/get-list-dat-phong-by-id-khach',
     guiMaHuyPhongAdmin: '/api/v1/gui-ma-huy-phong-admin',
     huyPhongByUser: '/api/v1/huy-phong-by-user',
+    getListChuyenKhoanLoai3: '/api/v1/get-list-chuyen-khoan-loai3',
+    huyThanhToanLoai3: '/api/v1/huy-thanh-toan-loai3',
+    xacNhanThanhToanLoai3: '/api/v1/xac-nhan-thanh-toan-loai3',
 };
 
 module.exports = {
