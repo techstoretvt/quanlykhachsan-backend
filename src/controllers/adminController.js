@@ -1281,6 +1281,59 @@ const xacNhanThanhToanLoai3 = async (req, res, next) => {
 };
 
 
+const themNhanVienKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themNhanVienKS(
+            {
+                file: req.file,
+                data: req.query,
+            }
+        );
+
+        return res.status(200).json(data);
+
+    } catch (e) {
+        next(e);
+    }
+};
+
+
+const getListNhanVienKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListNhanVienKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getBangLuongNhanVienKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getBangLuongNhanVienKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListKhachHangKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListKhachHangKS(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+
+
 
 module.exports = {
     addTypeProduct,
@@ -1404,5 +1457,9 @@ module.exports = {
     huyPhongByUser,
     getListChuyenKhoanLoai3,
     huyThanhToanLoai3,
-    xacNhanThanhToanLoai3
+    xacNhanThanhToanLoai3,
+    themNhanVienKS,
+    getListNhanVienKS,
+    getBangLuongNhanVienKS,
+    getListKhachHangKS
 };

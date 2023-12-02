@@ -406,6 +406,10 @@ const routes = {
     getListChuyenKhoanLoai3: '/api/v1/get-list-chuyen-khoan-loai3',
     huyThanhToanLoai3: '/api/v1/huy-thanh-toan-loai3',
     xacNhanThanhToanLoai3: '/api/v1/xac-nhan-thanh-toan-loai3',
+    themNhanVienKS: '/api/v1/them-nhan-vien-ks',
+    getListNhanVienKS: '/api/v1/get-list-nhan-vien-ks',
+    getBangLuongNhanVienKS: '/api/v1/get-bang-luong-nhan-vien-ks',
+    getListKhachHangKS: '/api/v1/get-list-khach-hang-ks',
 };
 
 module.exports = {

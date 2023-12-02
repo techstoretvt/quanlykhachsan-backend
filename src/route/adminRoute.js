@@ -627,6 +627,31 @@ const initAdminRoute = (app) => {
         adminController.xacNhanThanhToanLoai3
     );
 
+    router.post(
+        routes.themNhanVienKS,
+        verifyAccessTokenAdmin,
+        cloudinary_khachsan.single('file'),
+        adminController.themNhanVienKS
+    );
+
+    router.get(
+        routes.getListNhanVienKS,
+        adminController.getListNhanVienKS
+    );
+
+    router.get(
+        routes.getBangLuongNhanVienKS,
+        verifyAccessTokenAdmin,
+        adminController.getBangLuongNhanVienKS
+    );
+
+    router.get(
+        routes.getListKhachHangKS,
+        verifyAccessTokenAdmin,
+        adminController.getListKhachHangKS
+    );
+
+
 
 
 

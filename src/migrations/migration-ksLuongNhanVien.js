@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('ksDatPhongs', {
+        await queryInterface.createTable('ksLuongNhanViens', {
             id: {
                 allowNull: false,
                 autoIncrement: false,
@@ -10,39 +10,35 @@ module.exports = {
                 type: Sequelize.STRING,
             },
 
-            idPhong: {
+            idNhanVien: {
                 type: Sequelize.STRING
             },
-            idKhach: {
-                type: Sequelize.STRING
+            ngayCong: {
+                type: Sequelize.INTEGER
             },
-            timeStart: {
+            ngayPhep: {
+                type: Sequelize.INTEGER
+            },
+            tangCa: {
+                type: Sequelize.INTEGER
+            },
+            thang: {
+                type: Sequelize.INTEGER
+            },
+            nam: {
+                type: Sequelize.INTEGER
+            },
+            ungLuong: {
                 type: Sequelize.BIGINT
             },
-            timeEnd: {
+            luongThuong: {
                 type: Sequelize.BIGINT
             },
-            khuyenMai: {
-                type: Sequelize.INTEGER
-            },
-            thanhTien: {
+            thucLanh: {
                 type: Sequelize.BIGINT
             },
-            loaiThanhToan: {
-                type: Sequelize.INTEGER
-            },
-            isThanhToan: {
-                type: Sequelize.INTEGER
-            },
-            trangThai: {
-                type: Sequelize.INTEGER
-            },
-
-            verifyCode: {
-                type: Sequelize.STRING
-            },
-            ghiChu: {
-                type: Sequelize.STRING
+            phuCap: {
+                type: Sequelize.BIGINT
             },
 
 
@@ -57,6 +53,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('ksDatPhongs');
+        await queryInterface.dropTable('ksLuongNhanViens');
     },
 };

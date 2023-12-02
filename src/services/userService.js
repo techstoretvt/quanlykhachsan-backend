@@ -1,24 +1,23 @@
-import db from "../models";
-require("dotenv").config();
+import Verifier from "email-verifier";
+import Fuse from "fuse.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import Verifier from "email-verifier";
-const { Op } = require("sequelize");
 import {
     signAccessToken,
     signRefreshToken,
     verifyRefreshToken,
 } from "../helpers/JWT_service";
+import { handleEmit } from "../index";
+import db from "../models";
+import commont from "../services/commont";
+require("dotenv").config();
+const { Op } = require("sequelize");
 
 const paypal = require("paypal-rest-sdk");
-import commont from "../services/commont";
 const { google } = require("googleapis");
 // const { OAuth2Client } = require('google-auth-library');
 const fs = require("fs");
 const path = require("path");
-import { handleEmit } from "../index";
-import Fuse from "fuse.js";
-import { dataflow } from "googleapis/build/src/apis/dataflow";
 const createError = require("http-errors");
 var cloudinary = require("cloudinary");
 // await cloudinary.v2.uploader.destroy('vznd4hds4kudr0zbvfop')

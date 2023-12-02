@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             isThanhToan: DataTypes.INTEGER, //0 chua, 1 roi
             trangThai: DataTypes.INTEGER, //1 dat truoc, 2 nhan phong, 3 ket thuc
             verifyCode: DataTypes.STRING, //ma huy phong user
+            ghiChu: DataTypes.STRING
 
         },
         {

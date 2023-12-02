@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('ksDatPhongs', {
+        await queryInterface.createTable('ksNhanViens', {
             id: {
                 allowNull: false,
                 autoIncrement: false,
@@ -10,38 +10,37 @@ module.exports = {
                 type: Sequelize.STRING,
             },
 
-            idPhong: {
+            hoTen: {
                 type: Sequelize.STRING
             },
-            idKhach: {
+            sdt: {
                 type: Sequelize.STRING
             },
-            timeStart: {
-                type: Sequelize.BIGINT
+            email: {
+                type: Sequelize.STRING
             },
-            timeEnd: {
-                type: Sequelize.BIGINT
+            ngaySinh: {
+                type: Sequelize.STRING
             },
-            khuyenMai: {
-                type: Sequelize.INTEGER
+            chucVu: {
+                type: Sequelize.STRING
             },
-            thanhTien: {
-                type: Sequelize.BIGINT
+            queQuan: {
+                type: Sequelize.STRING
             },
-            loaiThanhToan: {
-                type: Sequelize.INTEGER
+            anh: {
+                type: Sequelize.TEXT
             },
-            isThanhToan: {
-                type: Sequelize.INTEGER
-            },
-            trangThai: {
-                type: Sequelize.INTEGER
-            },
-
-            verifyCode: {
+            gioiTinh: {
                 type: Sequelize.STRING
             },
             ghiChu: {
+                type: Sequelize.STRING
+            },
+            luongCoBan: {
+                type: Sequelize.BIGINT
+            },
+            caLamViec: {
                 type: Sequelize.STRING
             },
 
@@ -57,6 +56,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('ksDatPhongs');
+        await queryInterface.dropTable('ksNhanViens');
     },
 };

@@ -1,24 +1,21 @@
-import db from '../models';
-import { v4 as uuidv4 } from 'uuid';
-import {
-    sendEmail,
-    hashPassword,
-    decodeToken,
-    comparePassword,
-} from './commont';
-import { Sequelize } from 'sequelize';
-var cloudinary = require('cloudinary');
-const { Op } = require('sequelize');
-import { handleEmit } from '../index';
-require('dotenv').config();
+import Verifier from "email-verifier";
 import FuzzySearch from 'fuzzy-search';
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { signAccessToken, signRefreshToken } from '../helpers/JWT_service';
+import { handleEmit } from '../index';
+import db from '../models';
+import commont, {
+    decodeToken,
+    hashPassword,
+    sendEmail
+} from './commont';
 import provinces from './provinces.json';
-import commont from './commont';
+var cloudinary = require('cloudinary');
+const { Op } = require('sequelize');
+require('dotenv').config();
 const { google } = require('googleapis');
 const createError = require('http-errors');
-import { signAccessToken, signRefreshToken } from '../helpers/JWT_service';
-import Verifier from "email-verifier";
 const paypal = require("paypal-rest-sdk");
 
 paypal.configure({
@@ -5733,9 +5730,11 @@ const datPhongKSAdmin = (data) => {
                 //tao don dat phong
                 let tien = phong.donGia
                 let khuyenMai = phong.khuyenMai
+                let ghiChu = ''
                 if (newKhach.diem >= 5) {
                     khuyenMai += 10
                     newKhach.diem = 0
+                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
                     await newKhach.save()
                 }
 
@@ -5757,6 +5756,7 @@ const datPhongKSAdmin = (data) => {
                     loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
                     isThanhToan: 0, //0 chua, 1 roi
                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                    ghiChu: ghiChu
                 })
 
                 //gửi email kèm link
@@ -5866,16 +5866,30 @@ const huyDatPhongKsAdmin = (data) => {
                     });
                 }
 
+
+
                 datPhong.trangThai = 3
                 await datPhong.save()
 
-                let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
-                commont.sendEmail(data.email,
-                    "Hủy phòng tại TBT Hotel",
-                    `Phòng của bạn đã bị hủy, Thông tin chi tiết vui lòng xem tại: 
-                    <a href="${linkTT}">${linkTT}</a>
-                    `
-                );
+                let khach = await db.ksKhachHang.findOne({
+                    where: {
+                        id: datPhong.idKhach
+                    }
+                })
+
+                if (khach) {
+                    let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${khach.id}`
+                    commont.sendEmail(khach.email,
+                        "Hủy phòng tại TBT Hotel",
+                        `Phòng của bạn đã bị hủy, Thông tin chi tiết vui lòng xem tại: 
+                        <a href="${linkTT}">${linkTT}</a>
+                        `
+                    );
+                }
+
+
+
+
 
 
                 resolve({
@@ -6197,6 +6211,20 @@ const traPhongKsAdmin = (data) => {
 
                 datPhong.trangThai = 3
                 await datPhong.save()
+
+                //send email
+                let khach = await db.ksKhachHang.findOne({
+                    where: {
+                        id: datPhong.idKhach
+                    }
+                })
+                let linkTT = `${process.env.LINK_FONTEND}/lien-he`
+                commont.sendEmail(khach.email,
+                    "Trả phòng tại TBT Hotel",
+                    `Bạn có thể cho chúng tôi đánh giá thông qua: 
+                    <a href="${linkTT}">${linkTT}</a>
+                    `
+                );
 
 
                 resolve({
@@ -6653,9 +6681,11 @@ const datPhongKSLoai1User = (data) => {
 
                                 let tien = phong.donGia
                                 let khuyenMai = phong.khuyenMai
+                                let ghiChu = ''
                                 if (newKhach.diem >= 5) {
                                     khuyenMai += 10
                                     newKhach.diem = 0
+                                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
                                     await newKhach.save()
                                 }
 
@@ -6674,6 +6704,7 @@ const datPhongKSLoai1User = (data) => {
                                     loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
                                     isThanhToan: 0, //0 chua, 1 roi
                                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                                    ghiChu: ghiChu
                                 })
 
 
@@ -6974,9 +7005,11 @@ const datPhongKSLoai2UserSuccess = (data) => {
 
                             let tien = phong.donGia
                             let khuyenMai = phong.khuyenMai
+                            let ghiChu = ''
                             if (khach.diem >= 5) {
                                 khuyenMai += 10
                                 khach.diem = 0
+                                ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
                                 await khach.save()
                             }
 
@@ -6995,6 +7028,7 @@ const datPhongKSLoai2UserSuccess = (data) => {
                                 loaiThanhToan: 2,//1 tien mat, 2 paypal, 3 orther bank
                                 isThanhToan: 1, //0 chua, 1 roi
                                 trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                                ghiChu: ghiChu
                             })
 
 
@@ -7123,9 +7157,11 @@ const datPhongKSLoai3User = ({ file, data }) => {
 
                                 let tien = phong.donGia
                                 let khuyenMai = phong.khuyenMai
+                                let ghiChu = ''
                                 if (newKhach.diem >= 5) {
                                     khuyenMai += 10
                                     newKhach.diem = 0
+                                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
                                     await newKhach.save()
                                 }
 
@@ -7144,6 +7180,7 @@ const datPhongKSLoai3User = ({ file, data }) => {
                                     loaiThanhToan: 3,//1 tien mat, 2 paypal, 3 orther bank
                                     isThanhToan: 0, //0 chua, 1 roi
                                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                                    ghiChu: ghiChu
                                 })
 
                                 if (!strIdPhong) {
@@ -7495,6 +7532,212 @@ const xacNhanThanhToanLoai3 = (data) => {
     });
 };
 
+const themNhanVienKS = ({ file, data }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt ||
+                !data.ngaySinh ||
+                !data.queQuan ||
+                !data.chucVu ||
+                !data.gioiTinh ||
+                !data.caLamViec
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let luongCB = data.chucVu === 'quản lý' ? 800000 : data.chucVu === 'lễ tân' ? 500000 :
+                    data.chucVu === 'nhân viên phục vụ' ? 400000 : 300000
+
+                let [row, created] = await db.ksNhanVien.findOrCreate({
+                    where: {
+                        hoTen: data.hoTen,
+                        email: data.email,
+                        sdt: data.sdt,
+                        ngaySinh: data.ngaySinh,
+                        queQuan: data.queQuan,
+                        chucVu: data.chucVu,
+                        gioiTinh: data.gioiTinh,
+                        caLamViec: data.caLamViec,
+                        ghiChu: data.ghiChu || "",
+                        luongCoBan: luongCB
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        anh: file.path,
+                    }
+                })
+
+                if (!created) {
+                    return resolve({
+                        errCode: 2,
+                        errMessage: 'Nhân viên này đã tồn tại!'
+                    });
+                }
+
+
+                resolve({
+                    errCode: 0,
+                    data: row
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const getListNhanVienKS = ({ file, data }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let listNV = await db.ksNhanVien.findAll()
+
+
+
+            resolve({
+                errCode: 0,
+                data: listNV
+            });
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getBangLuongNhanVienKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.thangLuong ||
+                !data.namLuong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let now = new Date();
+                if (+data.namLuong > now.getFullYear() || +data.thangLuong > now.getMonth() + 1) {
+                    return resolve({
+                        errCode: 0,
+                        data: [],
+                    });
+                }
+
+
+                let checkLuong = await db.ksLuongNhanVien.findAll({
+                    where: {
+                        thang: +data.thangLuong,
+                        nam: +data.namLuong
+                    },
+                    include: [
+                        {
+                            model: db.ksNhanVien
+                        }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if (checkLuong && checkLuong.length !== 0) {
+                    return resolve({
+                        errCode: 0,
+                        data: checkLuong
+                    });
+                }
+                else {
+
+                    let listNV = await db.ksNhanVien.findAll()
+
+                    let newListLuong = listNV.map((item, index) => {
+                        let ngayCong = Math.floor(Math.random() * 3) + 24;
+                        let ngayPhep = Math.floor(Math.random() * 4);
+                        let tangCa = Math.floor(Math.random() * 4);
+                        let luongThuong = item.luongCoBan * ngayCong;
+
+                        let rdPhuCap = Math.floor(Math.random() * 3)
+                        let phuCap = rdPhuCap === 0 ? 0 : rdPhuCap === 1 ? 500000 : 1000000;
+
+                        let rdUngLuong = Math.floor(Math.random() * 2)
+                        let ungLuong = rdUngLuong === 0 ? 0 : 500000
+
+                        let thucLanh = luongThuong + phuCap + (tangCa * 100000) - ungLuong
+
+                        return {
+                            id: uuidv4(),
+                            idNhanVien: item.id,
+                            ngayCong: ngayCong, //so ngay lam
+                            ngayPhep: ngayPhep, //so ngay nghi
+                            tangCa: tangCa, //so ngay tang ca
+                            thang: +data.thangLuong,
+                            nam: +data.namLuong,
+                            luongThuong: luongThuong, //luong ngay thuong
+                            thucLanh: thucLanh, //tong luong
+                            phuCap: phuCap, //tien cong them
+                            ungLuong: ungLuong,
+                        }
+                    })
+
+                    await db.ksLuongNhanVien.bulkCreate(newListLuong, { individualHooks: true })
+
+                    let listLuong = await db.ksLuongNhanVien.findAll({
+                        where: {
+                            thang: +data.thangLuong,
+                            nam: +data.namLuong
+                        },
+                        include: [
+                            {
+                                model: db.ksNhanVien
+                            }
+                        ],
+                        raw: false,
+                        nest: true
+                    })
+
+
+
+                    resolve({
+                        errCode: 0,
+                        data: listLuong
+                    });
+                }
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+const getListKhachHangKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let listKhachHang = await db.ksKhachHang.findAll()
+
+
+
+            resolve({
+                errCode: 0,
+                data: listKhachHang
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
 
 
 
@@ -7618,5 +7861,9 @@ module.exports = {
     huyPhongByUser,
     getListChuyenKhoanLoai3,
     huyThanhToanLoai3,
-    xacNhanThanhToanLoai3
+    xacNhanThanhToanLoai3,
+    themNhanVienKS,
+    getListNhanVienKS,
+    getBangLuongNhanVienKS,
+    getListKhachHangKS
 };
