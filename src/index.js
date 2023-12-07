@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN],
+        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN, LINK_LOGIN],
         methods: ['GET', 'POST'],
     },
 });
@@ -57,8 +57,7 @@ app.get('/error', (req, res, next) => {
 app.use((err, req, res, next) => {
     if (err.status && err.status >= 500)
         logEvents(
-            `${req.url} -- ${req.method} -- ${err.status || 500} -- ${
-                err.message
+            `${req.url} -- ${req.method} -- ${err.status || 500} -- ${err.message
             }`
         );
 

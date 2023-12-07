@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
             // ksNhanVien.hasMany(models.ksPhong, { foreignKey: 'idChiNhanh' });
             ksNhanVien.hasMany(models.ksLuongNhanVien, { foreignKey: 'idNhanVien' });
+            ksNhanVien.belongsTo(models.ksChiNhanh, { foreignKey: 'idChiNhanh' });
         }
     }
     ksNhanVien.init(
@@ -20,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
             gioiTinh: DataTypes.STRING,
             ghiChu: DataTypes.STRING, //ghi chu ve mot so thong tin
             luongCoBan: DataTypes.BIGINT, // luong 1 ngay theo chuc vu
-            caLamViec: DataTypes.STRING //sang, trua, toi
+            caLamViec: DataTypes.STRING, //sang, trua, toi
+            idChiNhanh: DataTypes.STRING
 
 
         },

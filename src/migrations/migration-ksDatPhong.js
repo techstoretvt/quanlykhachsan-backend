@@ -44,6 +44,9 @@ module.exports = {
             ghiChu: {
                 type: Sequelize.STRING
             },
+            idUser: {
+                type: Sequelize.STRING
+            },
 
 
             createdAt: {

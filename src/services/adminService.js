@@ -6732,6 +6732,9 @@ const datPhongKSLoai1User = (data) => {
                             );
 
 
+                            //tb socket
+                            handleEmit("new_dat_phong", null)
+
 
                             resolve({
                                 errCode: 0,
@@ -7047,6 +7050,8 @@ const datPhongKSLoai2UserSuccess = (data) => {
                             `
                         );
 
+                        handleEmit("new_dat_phong", null)
+
                         resolve({
                             errCode: 0,
                             idKhach
@@ -7222,7 +7227,7 @@ const datPhongKSLoai3User = ({ file, data }) => {
                                 `
                             );
 
-
+                            handleEmit("new_dat_phong", null)
 
                             resolve({
                                 errCode: 0,
@@ -7599,7 +7604,15 @@ const getListNhanVienKS = ({ file, data }) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let listNV = await db.ksNhanVien.findAll()
+            let listNV = await db.ksNhanVien.findAll({
+                include: [
+                    {
+                        model: db.ksChiNhanh
+                    }
+                ],
+                nest: true,
+                raw: false
+            })
 
 
 

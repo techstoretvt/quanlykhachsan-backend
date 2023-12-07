@@ -43,6 +43,9 @@ module.exports = {
             caLamViec: {
                 type: Sequelize.STRING
             },
+            idChiNhanh: {
+                type: Sequelize.STRING
+            },
 
 
             createdAt: {
