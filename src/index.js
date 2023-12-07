@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN, LINK_LOGIN],
+        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN, process.env.LINK_LOGIN],
         methods: ['GET', 'POST'],
     },
 });
@@ -33,7 +33,7 @@ app.use(
     cors({
         // exposedHeaders: ['authorization'],
         credentials: true,
-        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN],
+        origin: [process.env.LINK_FONTEND, process.env.LINK_ADMIN, process.env.LINK_LOGIN],
     })
 );
 
