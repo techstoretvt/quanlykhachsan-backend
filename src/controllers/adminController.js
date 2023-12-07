@@ -1332,7 +1332,50 @@ const getListKhachHangKS = async (req, res, next) => {
     }
 };
 
+const themDichVuKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themDichVuKS(req.body);
 
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const layDsDichVu = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.layDsDichVu(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+
+const suaDichVuKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.suaDichVuKS(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const datDichVuKS = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datDichVuKS(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
 
 
 module.exports = {
@@ -1461,5 +1504,9 @@ module.exports = {
     themNhanVienKS,
     getListNhanVienKS,
     getBangLuongNhanVienKS,
-    getListKhachHangKS
+    getListKhachHangKS,
+    themDichVuKS,
+    layDsDichVu,
+    suaDichVuKS,
+    datDichVuKS
 };

@@ -652,9 +652,28 @@ const initAdminRoute = (app) => {
     );
 
 
+    router.post(
+        routes.themDichVuKS,
+        verifyAccessTokenAdmin,
+        adminController.themDichVuKS
+    );
 
+    router.get(
+        routes.layDsDichVu,
+        adminController.layDsDichVu
+    );
 
+    router.put(
+        routes.suaDichVuKS,
+        verifyAccessTokenAdmin,
+        adminController.suaDichVuKS
+    );
 
+    router.post(
+        routes.datDichVuKS,
+        verifyAccessTokenAdmin,
+        adminController.datDichVuKS
+    );
 
 
     return app.use('/', router);

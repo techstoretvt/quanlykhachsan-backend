@@ -410,6 +410,10 @@ const routes = {
     getListNhanVienKS: '/api/v1/get-list-nhan-vien-ks',
     getBangLuongNhanVienKS: '/api/v1/get-bang-luong-nhan-vien-ks',
     getListKhachHangKS: '/api/v1/get-list-khach-hang-ks',
+    themDichVuKS: '/api/v1/them-dich-vu-ks',
+    layDsDichVu: '/api/ks/v1/lay-ds-dich-vu',
+    suaDichVuKS: '/api/v1/sua-dich-vu-ks',
+    datDichVuKS: '/api/v1/dat-dich-vu-ks',
 };
 
 module.exports = {

@@ -6704,7 +6704,8 @@ const datPhongKSLoai1User = (data) => {
                                     loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
                                     isThanhToan: 0, //0 chua, 1 roi
                                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
-                                    ghiChu: ghiChu
+                                    ghiChu: ghiChu,
+                                    idUser: data.idUser ?? ""
                                 })
 
 
@@ -6895,7 +6896,7 @@ const datPhongKSLoai2User = (data) => {
                     redirect_urls: {
                         return_url: `${process.env.LINK_BACKEND
                             }/api/v1/dat-phong-ks-loai2-user-success?price=${totals + ".00"
-                            }&idPhong=${data.idPhong}&idKhach=${newKhach.id}&timeStart=${data.timeStart}&timeEnd=${data.timeEnd}`,
+                            }&idPhong=${data.idPhong}&idKhach=${newKhach.id}&timeStart=${data.timeStart}&timeEnd=${data.timeEnd}&idUser=${data.idUser}`,
                         cancel_url: `${process.env.LINK_FONTEND}/`,
                     },
                     transactions: [
@@ -6956,6 +6957,7 @@ const datPhongKSLoai2UserSuccess = (data) => {
             const idKhach = data.idKhach
             const timeStart = data.timeStart
             const timeEnd = data.timeEnd
+            const idUser = data.idUser
 
             console.log("listIdPhong: ", listIdPhong);
 
@@ -7031,7 +7033,8 @@ const datPhongKSLoai2UserSuccess = (data) => {
                                 loaiThanhToan: 2,//1 tien mat, 2 paypal, 3 orther bank
                                 isThanhToan: 1, //0 chua, 1 roi
                                 trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
-                                ghiChu: ghiChu
+                                ghiChu: ghiChu,
+                                idUser: idUser ?? ''
                             })
 
 
@@ -7185,7 +7188,8 @@ const datPhongKSLoai3User = ({ file, data }) => {
                                     loaiThanhToan: 3,//1 tien mat, 2 paypal, 3 orther bank
                                     isThanhToan: 0, //0 chua, 1 roi
                                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
-                                    ghiChu: ghiChu
+                                    ghiChu: ghiChu,
+                                    idUser: data.idUser ?? ''
                                 })
 
                                 if (!strIdPhong) {
@@ -7548,7 +7552,8 @@ const themNhanVienKS = ({ file, data }) => {
                 !data.queQuan ||
                 !data.chucVu ||
                 !data.gioiTinh ||
-                !data.caLamViec
+                !data.caLamViec ||
+                !data.idChiNhanh
             ) {
                 resolve({
                     errCode: 1,
@@ -7571,7 +7576,8 @@ const themNhanVienKS = ({ file, data }) => {
                         gioiTinh: data.gioiTinh,
                         caLamViec: data.caLamViec,
                         ghiChu: data.ghiChu || "",
-                        luongCoBan: luongCB
+                        luongCoBan: luongCB,
+                        idChiNhanh: data.idChiNhanh
                     },
                     defaults: {
                         id: uuidv4(),
@@ -7752,6 +7758,157 @@ const getListKhachHangKS = (data) => {
     });
 };
 
+const themDichVuKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.tenDichVu ||
+                !data.kho ||
+                !data.gia
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let [row, created] = await db.ksDichVu.findOrCreate({
+                    where: {
+                        tenDichVu: data.tenDichVu.toLowerCase()
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        kho: +data.kho,
+                        gia: +data.gia
+                    }
+                })
+
+                if (created) {
+                    resolve({
+                        errCode: 0,
+                        data: row
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Dịch vụ này đã tồn tại!'
+                    });
+                }
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const layDsDichVu = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+
+            let listDichVu = await db.ksDichVu.findAll({
+                order: [['createdAt', 'asc']]
+            })
+
+            resolve({
+                errCode: 0,
+                data: listDichVu
+            });
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const suaDichVuKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.tenDichVu ||
+                !data.kho ||
+                !data.gia ||
+                !data.id
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let dichvu = await db.ksDichVu.findOne({
+                    where: {
+                        id: data.id
+                    },
+                    raw: false
+                })
+
+                if (dichvu) {
+
+                    dichvu.tenDichVu = data.tenDichVu.toLowerCase()
+                    dichvu.kho = +data.kho
+                    dichvu.gia = +data.gia
+
+                    await dichvu.save()
+
+                    resolve({
+                        errCode: 0,
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Dịch vụ này không đã tồn tại!'
+                    });
+                }
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const datDichVuKS = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idDichVu ||
+                !data.idPhong ||
+                !data.soLuong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let now = new Date().getTime()
+
+                let newData = await db.ksDatDichVu.create({
+                    id: uuidv4(),
+                    idPhong: data.idPhong,
+                    idDichVu: data.idDichVu,
+                    soLuong: +data.soLuong,
+                    thoiGian: now
+                })
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
 
 
 module.exports = {
@@ -7878,5 +8035,9 @@ module.exports = {
     themNhanVienKS,
     getListNhanVienKS,
     getBangLuongNhanVienKS,
-    getListKhachHangKS
+    getListKhachHangKS,
+    themDichVuKS,
+    layDsDichVu,
+    suaDichVuKS,
+    datDichVuKS
 };
