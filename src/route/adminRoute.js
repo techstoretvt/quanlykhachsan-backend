@@ -3,7 +3,7 @@ import adminController from '../controllers/adminController';
 import multer from 'multer';
 import path from 'path';
 import { routes } from '../services/commont';
-import { verifyAccessTokenAdmin } from '../helpers/JWT_service';
+import { verifyAccessTokenAdmin, verifyAccessToken } from '../helpers/JWT_service';
 
 const fileUploader = require('../config/cloudinary.config');
 import cloudinary_product from '../utils/cloudinary/cloudinary_product';
@@ -587,6 +587,12 @@ const initAdminRoute = (app) => {
     router.get(
         routes.getListDatPhongByIdKhach,
         adminController.getListDatPhongByIdKhach
+    );
+
+    router.get(
+        routes.getListDatPhongByIdUser,
+        verifyAccessToken,
+        adminController.getListDatPhongByIdUser
     );
 
     router.get(

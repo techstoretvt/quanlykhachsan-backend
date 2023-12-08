@@ -1225,6 +1225,17 @@ const getListDatPhongByIdKhach = async (req, res, next) => {
     }
 };
 
+const getListDatPhongByIdUser = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDatPhongByIdUser(req.query, req.payload);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
 const guiMaHuyPhongAdmin = async (req, res, next) => {
     try {
         //call service data
@@ -1496,6 +1507,7 @@ module.exports = {
     datPhongKSLoai2UserSuccess,
     datPhongKSLoai3User,
     getListDatPhongByIdKhach,
+    getListDatPhongByIdUser,
     guiMaHuyPhongAdmin,
     huyPhongByUser,
     getListChuyenKhoanLoai3,

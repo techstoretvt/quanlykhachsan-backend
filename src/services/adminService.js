@@ -6012,6 +6012,7 @@ const getListDatPhongKSTheoThang = (data) => {
                                 model: db.ksKhachHang
                             }
                         ],
+                        order: [['createdAt', 'desc']],
                         raw: false,
                         nest: true
                     })
@@ -6037,6 +6038,7 @@ const getListDatPhongKSTheoThang = (data) => {
                                 model: db.ksKhachHang
                             }
                         ],
+                        order: [['createdAt', 'desc']],
                         raw: false,
                         nest: true
                     })
@@ -6065,6 +6067,7 @@ const getListDatPhongKSTheoThang = (data) => {
                                 model: db.ksKhachHang
                             }
                         ],
+                        order: [['createdAt', 'desc']],
                         raw: false,
                         nest: true
                     })
@@ -6673,9 +6676,12 @@ const datPhongKSLoai1User = (data) => {
                                 })
 
                                 if (checkTime) {
+                                    let time1 = new Date(+checkTime.timeStart * 1000)
+                                    let time2 = new Date(+checkTime.timeEnd * 1000)
+
                                     return resolve({
                                         errCode: 3,
-                                        errMessage: `${phong.tenPhong} đã có người đặt trước`
+                                        errMessage: `${phong.tenPhong} đã có người đặt trước: ${time1.getDate()}/${time1.getMonth() + 1}/${time1.getFullYear()} - ${time2.getDate()}/${time2.getMonth() + 1}/${time2.getFullYear()}`
                                     });
                                 }
 
@@ -6851,9 +6857,12 @@ const datPhongKSLoai2User = (data) => {
                     })
 
                     if (checkTime) {
+                        let time1 = new Date(+checkTime.timeStart * 1000)
+                        let time2 = new Date(+checkTime.timeEnd * 1000)
+
                         return resolve({
                             errCode: 3,
-                            errMessage: `${phong.tenPhong} đã có người đặt trước`
+                            errMessage: `${phong.tenPhong} đã có người đặt trước: ${time1.getDate()}/${time1.getMonth() + 1}/${time1.getFullYear()} - ${time2.getDate()}/${time2.getMonth() + 1}/${time2.getFullYear()}`
                         });
                     }
 
@@ -7157,9 +7166,12 @@ const datPhongKSLoai3User = ({ file, data }) => {
                                 })
 
                                 if (checkTime) {
+                                    let time1 = new Date(+checkTime.timeStart * 1000)
+                                    let time2 = new Date(+checkTime.timeEnd * 1000)
+
                                     return resolve({
                                         errCode: 3,
-                                        errMessage: `${phong.tenPhong} đã có người đặt trước`
+                                        errMessage: `${phong.tenPhong} đã có người đặt trước: ${time1.getDate()}/${time1.getMonth() + 1}/${time1.getFullYear()} - ${time2.getDate()}/${time2.getMonth() + 1}/${time2.getFullYear()}`
                                     });
                                 }
 
@@ -7215,7 +7227,7 @@ const datPhongKSLoai3User = ({ file, data }) => {
 
                             await db.ksChuyenKhoan.create({
                                 id: uuidv4(),
-                                idDatPhong: strIdPhong,
+                                idDatPhong: newArr[0].id,
                                 trangThai: 0, //0 chua xem, 1 da xac minh, 3 ko hop le
                                 urlAnh: file.path,
                                 ghiChu: "",
@@ -7292,6 +7304,44 @@ const getListDatPhongByIdKhach = (data) => {
                 });
 
             }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getListDatPhongByIdUser = (data, payload) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // console.log("payload: ", payload);
+
+            let listDatPhong = await db.ksDatPhong.findAll({
+                where: {
+                    idUser: payload.id
+                },
+                include: [
+                    {
+                        model: db.ksPhong,
+                        include: [
+                            {
+                                model: db.ksChiNhanh
+                            }
+                        ]
+                    },
+                ],
+                order: [['createdAt', 'desc']],
+                raw: false,
+                nest: true
+            })
+
+
+
+
+            resolve({
+                errCode: 0,
+                data: listDatPhong
+            });
+
         } catch (e) {
             reject(e);
         }
@@ -7877,9 +7927,8 @@ const datDichVuKS = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (
-                !data.idDichVu ||
                 !data.idPhong ||
-                !data.soLuong
+                data.listDV.length === 0
             ) {
                 resolve({
                     errCode: 1,
@@ -7890,13 +7939,15 @@ const datDichVuKS = (data) => {
 
                 let now = new Date().getTime()
 
-                let newData = await db.ksDatDichVu.create({
+                let listData = data.listDV.map(item => ({
                     id: uuidv4(),
                     idPhong: data.idPhong,
-                    idDichVu: data.idDichVu,
-                    soLuong: +data.soLuong,
+                    idDichVu: item.id,
+                    soLuong: +item.sl,
                     thoiGian: now
-                })
+                }))
+
+                let newData = await db.ksDatDichVu.bulkCreate(listData, { individualHooks: true })
 
 
                 resolve({
@@ -8027,6 +8078,7 @@ module.exports = {
     datPhongKSLoai2UserSuccess,
     datPhongKSLoai3User,
     getListDatPhongByIdKhach,
+    getListDatPhongByIdUser,
     guiMaHuyPhongAdmin,
     huyPhongByUser,
     getListChuyenKhoanLoai3,

@@ -414,6 +414,7 @@ const routes = {
     layDsDichVu: '/api/ks/v1/lay-ds-dich-vu',
     suaDichVuKS: '/api/v1/sua-dich-vu-ks',
     datDichVuKS: '/api/v1/dat-dich-vu-ks',
+    getListDatPhongByIdUser: '/api/v1/get-list-dat-phong-by-id-user',
 };
 
 module.exports = {
