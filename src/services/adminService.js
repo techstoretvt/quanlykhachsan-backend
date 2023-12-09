@@ -5628,8 +5628,8 @@ const layDanhSachPhongKS = (data) => {
                         [Op.substring]: tenPhong
                     }
                 },
-                limit,
-                offset: (page - 1) * limit,
+                // limit,
+                // offset: (page - 1) * limit,
                 raw: false
             })
 
