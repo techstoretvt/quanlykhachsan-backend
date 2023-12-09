@@ -681,6 +681,28 @@ const initAdminRoute = (app) => {
         adminController.datDichVuKS
     );
 
+    router.post(
+        routes.themDanhMucKs,
+        verifyAccessTokenAdmin,
+        adminController.themDanhMucKs
+    );
+
+    router.get(
+        routes.getListDanhMucDV,
+        adminController.getListDanhMucDV
+    );
+
+    router.post(
+        routes.themDanhMucPhong,
+        verifyAccessTokenAdmin,
+        adminController.themDanhMucPhong
+    );
+
+    router.get(
+        routes.layDSDanhMucPhong,
+        adminController.layDSDanhMucPhong
+    );
+
 
     return app.use('/', router);
 };

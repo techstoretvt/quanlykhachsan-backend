@@ -1388,6 +1388,51 @@ const datDichVuKS = async (req, res, next) => {
     }
 };
 
+const themDanhMucKs = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themDanhMucKs(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getListDanhMucDV = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.getListDanhMucDV(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const themDanhMucPhong = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themDanhMucPhong(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const layDSDanhMucPhong = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.layDSDanhMucPhong(req.query);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+
 
 module.exports = {
     addTypeProduct,
@@ -1520,5 +1565,9 @@ module.exports = {
     themDichVuKS,
     layDsDichVu,
     suaDichVuKS,
-    datDichVuKS
+    datDichVuKS,
+    themDanhMucKs,
+    getListDanhMucDV,
+    themDanhMucPhong,
+    layDSDanhMucPhong
 };

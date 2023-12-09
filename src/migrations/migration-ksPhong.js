@@ -43,6 +43,9 @@ module.exports = {
             trangThai: {
                 type: Sequelize.INTEGER
             },
+            idDanhMucPhong: {
+                type: Sequelize.STRING
+            },
 
 
             createdAt: {

@@ -415,6 +415,10 @@ const routes = {
     suaDichVuKS: '/api/v1/sua-dich-vu-ks',
     datDichVuKS: '/api/v1/dat-dich-vu-ks',
     getListDatPhongByIdUser: '/api/v1/get-list-dat-phong-by-id-user',
+    themDanhMucKs: '/api/v1/them-danh-muc-ks',
+    getListDanhMucDV: '/api/v1/get-list-danh-muc-dv',
+    themDanhMucPhong: '/api/v2/them-danh-muc-phong',
+    layDSDanhMucPhong: '/api/v1/lay-ds-danh-muc-phong',
 };
 
 module.exports = {

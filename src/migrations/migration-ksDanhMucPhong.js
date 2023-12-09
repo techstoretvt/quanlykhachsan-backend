@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('ksDichVus', {
+        await queryInterface.createTable('ksDanhMucPhongs', {
             id: {
                 allowNull: false,
                 autoIncrement: false,
@@ -10,16 +10,7 @@ module.exports = {
                 type: Sequelize.STRING,
             },
 
-            tenDichVu: {
-                type: Sequelize.STRING,
-            },
-            kho: {
-                type: Sequelize.INTEGER,
-            },
-            gia: {
-                type: Sequelize.INTEGER,
-            },
-            idDanhMuc: {
+            tenDanhMuc: {
                 type: Sequelize.STRING,
             },
 
@@ -35,6 +26,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('ksDichVus');
+        await queryInterface.dropTable('ksDanhMucPhongs');
     },
 };

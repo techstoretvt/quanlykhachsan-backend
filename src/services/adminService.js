@@ -5527,7 +5527,8 @@ const themPhongKS = (data) => {
                 !data.soGiuongDoi ||
                 !data.soPhongTam ||
                 !data.donGia ||
-                !data.dienTich
+                !data.dienTich ||
+                !data.idDanhMucPhong
             ) {
                 resolve({
                     errCode: 1,
@@ -5551,6 +5552,7 @@ const themPhongKS = (data) => {
                     dienTich: +data.dienTich,
                     khuyenMai: 0,
                     trangThai: 1,
+                    idDanhMucPhong: data.idDanhMucPhong
                 })
 
                 resolve({
@@ -7814,7 +7816,7 @@ const themDichVuKS = (data) => {
             if (
                 !data.tenDichVu ||
                 !data.kho ||
-                !data.gia
+                !data.gia || !data.idDanhMuc
             ) {
                 resolve({
                     errCode: 1,
@@ -7830,7 +7832,8 @@ const themDichVuKS = (data) => {
                     defaults: {
                         id: uuidv4(),
                         kho: +data.kho,
-                        gia: +data.gia
+                        gia: +data.gia,
+                        idDanhMuc: data.idDanhMuc
                     }
                 })
 
@@ -7955,6 +7958,134 @@ const datDichVuKS = (data) => {
                 });
 
             }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const themDanhMucKs = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.tenDanhMuc
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let [row, created] = await db.ksDanhMucDichVu.findOrCreate({
+                    where: {
+                        tenDanhMuc: data.tenDanhMuc.toLowerCase()
+                    },
+                    defaults: {
+                        id: uuidv4()
+                    }
+                })
+                if (created) {
+                    resolve({
+                        errCode: 0,
+                        data: row
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Tên danh mục đã tồn tại!',
+                    });
+                }
+
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getListDanhMucDV = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+
+            let listDiM = await db.ksDanhMucDichVu.findAll({
+                order: [['createdAt', 'asc']]
+            })
+
+            resolve({
+                errCode: 0,
+                data: listDiM
+            });
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const themDanhMucPhong = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.tenDanhMuc
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let [row, created] = await db.ksDanhMucPhong.findOrCreate({
+                    where: {
+                        tenDanhMuc: data.tenDanhMuc.toLowerCase()
+                    },
+                    defaults: {
+                        id: uuidv4()
+                    }
+                })
+                if (created) {
+                    resolve({
+                        errCode: 0,
+                        data: row
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Tên danh mục đã tồn tại!',
+                    });
+                }
+
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const layDSDanhMucPhong = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+
+            let listDM = await db.ksDanhMucPhong.findAll({
+                order: [['createdAt', 'asc']]
+            })
+
+            resolve({
+                errCode: 0,
+                data: listDM
+            });
+
         } catch (e) {
             reject(e);
         }
@@ -8091,5 +8222,9 @@ module.exports = {
     themDichVuKS,
     layDsDichVu,
     suaDichVuKS,
-    datDichVuKS
+    datDichVuKS,
+    themDanhMucKs,
+    getListDanhMucDV,
+    themDanhMucPhong,
+    layDSDanhMucPhong
 };
