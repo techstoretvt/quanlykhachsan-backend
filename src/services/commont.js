@@ -419,6 +419,8 @@ const routes = {
     getListDanhMucDV: '/api/v1/get-list-danh-muc-dv',
     themDanhMucPhong: '/api/v2/them-danh-muc-phong',
     layDSDanhMucPhong: '/api/v1/lay-ds-danh-muc-phong',
+    themKhachHang: '/api/v1/them-khach-hang',
+    suaKhachHang: '/api/v1/sua-khach-hang',
 };
 
 module.exports = {

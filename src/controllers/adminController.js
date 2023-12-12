@@ -1432,6 +1432,29 @@ const layDSDanhMucPhong = async (req, res, next) => {
     }
 };
 
+const themKhachHang = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.themKhachHang(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+const suaKhachHang = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.suaKhachHang(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
+
 
 
 module.exports = {
@@ -1569,5 +1592,7 @@ module.exports = {
     themDanhMucKs,
     getListDanhMucDV,
     themDanhMucPhong,
-    layDSDanhMucPhong
+    layDSDanhMucPhong,
+    themKhachHang,
+    suaKhachHang,
 };

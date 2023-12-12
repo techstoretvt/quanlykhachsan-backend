@@ -7796,7 +7796,9 @@ const getListKhachHangKS = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let listKhachHang = await db.ksKhachHang.findAll()
+            let listKhachHang = await db.ksKhachHang.findAll({
+                order: [['createdAt', 'desc']]
+            })
 
 
 
@@ -8092,6 +8094,99 @@ const layDSDanhMucPhong = (data) => {
     });
 };
 
+const themKhachHang = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.hoTen || !data.email || !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let [row, created] = await db.ksKhachHang.findOrCreate({
+                    where: {
+                        sdt: data.sdt
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        hoTen: data.hoTen,
+                        email: data.email,
+                        diem: 0
+                    }
+                })
+                if (created) {
+                    resolve({
+                        errCode: 0,
+                        data: row
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Số điện thoại này đã tồn tại!',
+                    });
+                }
+
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const suaKhachHang = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.hoTen || !data.email || !data.id
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let khachHang = await db.ksKhachHang.findOne({
+                    where: {
+                        id: data.id
+                    },
+                    raw: false
+                })
+                if (khachHang) {
+                    khachHang.hoTen = data.hoTen
+                    khachHang.email = data.email
+                    await khachHang.save()
+
+                    resolve({
+                        errCode: 0,
+                    });
+                }
+                else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Khách hàng không tồn tại!',
+                    });
+                }
+
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
 
 module.exports = {
     addTypeProduct,
@@ -8226,5 +8321,7 @@ module.exports = {
     themDanhMucKs,
     getListDanhMucDV,
     themDanhMucPhong,
-    layDSDanhMucPhong
+    layDSDanhMucPhong,
+    themKhachHang,
+    suaKhachHang
 };

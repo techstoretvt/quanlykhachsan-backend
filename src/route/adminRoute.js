@@ -704,6 +704,20 @@ const initAdminRoute = (app) => {
     );
 
 
+    router.post(
+        routes.themKhachHang,
+        verifyAccessTokenAdmin,
+        adminController.themKhachHang
+    );
+
+    router.put(
+        routes.suaKhachHang,
+        verifyAccessTokenAdmin,
+        adminController.suaKhachHang
+    );
+
+
+
     return app.use('/', router);
 };
 
