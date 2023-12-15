@@ -1454,6 +1454,26 @@ const suaKhachHang = async (req, res, next) => {
     }
 };
 
+const blockHandleSuaPhong = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.blockHandleSuaPhong(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+const unBlockHandleSuaPhong = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.unBlockHandleSuaPhong(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
 
 
 
@@ -1595,4 +1615,6 @@ module.exports = {
     layDSDanhMucPhong,
     themKhachHang,
     suaKhachHang,
+    blockHandleSuaPhong,
+    unBlockHandleSuaPhong
 };

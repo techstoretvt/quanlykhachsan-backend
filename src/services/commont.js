@@ -421,6 +421,8 @@ const routes = {
     layDSDanhMucPhong: '/api/v1/lay-ds-danh-muc-phong',
     themKhachHang: '/api/v1/them-khach-hang',
     suaKhachHang: '/api/v1/sua-khach-hang',
+    blockHandleSuaPhong: '/api/v1/block-handle-sua-phong',
+    unBlockHandleSuaPhong: '/api/v1/unblock-handle-sua-phong',
 };
 
 module.exports = {

@@ -109,6 +109,8 @@ let GG_Drive = {
     },
 };
 
+let isBlockSuaPhong = false;
+
 const checkLoginAdmin = async (accessToken) => {
     try {
         let decoded = decodeToken(accessToken, process.env.ACCESS_TOKEN_SECRET);
@@ -7955,6 +7957,21 @@ const datDichVuKS = (data) => {
                 let newData = await db.ksDatDichVu.bulkCreate(listData, { individualHooks: true })
 
 
+                //thay doi so luong
+                for (let item of data.listDV) {
+                    let dv = await db.ksDichVu.findOne({
+                        where: {
+                            id: item.id
+                        },
+                        raw: false
+                    })
+                    if (dv) {
+                        dv.kho = dv.kho - +item.sl
+                        await dv.save()
+                    }
+                }
+
+
                 resolve({
                     errCode: 0,
                 });
@@ -8186,6 +8203,46 @@ const suaKhachHang = (data) => {
     });
 };
 
+const blockHandleSuaPhong = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            if (isBlockSuaPhong === false) {
+
+                isBlockSuaPhong = true;
+                resolve({
+                    errCode: 0,
+                });
+            }
+            else {
+                resolve({
+                    errCode: 1,
+                });
+            }
+
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+const unBlockHandleSuaPhong = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            isBlockSuaPhong = false;
+
+            resolve({
+                errCode: 0,
+            });
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
 
 
 module.exports = {
@@ -8323,5 +8380,7 @@ module.exports = {
     themDanhMucPhong,
     layDSDanhMucPhong,
     themKhachHang,
-    suaKhachHang
+    suaKhachHang,
+    blockHandleSuaPhong,
+    unBlockHandleSuaPhong
 };

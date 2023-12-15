@@ -716,6 +716,17 @@ const initAdminRoute = (app) => {
         adminController.suaKhachHang
     );
 
+    router.post(
+        routes.blockHandleSuaPhong,
+        verifyAccessTokenAdmin,
+        adminController.blockHandleSuaPhong
+    );
+    router.post(
+        routes.unBlockHandleSuaPhong,
+        verifyAccessTokenAdmin,
+        adminController.unBlockHandleSuaPhong
+    );
+
 
 
     return app.use('/', router);
