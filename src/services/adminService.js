@@ -5735,10 +5735,19 @@ const datPhongKSAdmin = (data) => {
                 let tien = phong.donGia
                 let khuyenMai = phong.khuyenMai
                 let ghiChu = ''
-                if (newKhach.diem >= 5) {
+                if (newKhach.diem === 1) {
+                    khuyenMai += 5
+                    ghiChu = "Ưu đãi khách đặt phòng lần 2 giảm 5%"
+                    await newKhach.save()
+                }
+                else if (newKhach.diem === 2) {
                     khuyenMai += 10
-                    newKhach.diem = 0
-                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
+                    ghiChu = "Ưu đãi khách đặt phòng lần 3 giảm 10%"
+                    await newKhach.save()
+                }
+                else if (newKhach.diem > 2) {
+                    khuyenMai += 15
+                    ghiChu = "Ưu đãi khách đặt phòng trên 3 lân giảm 15%"
                     await newKhach.save()
                 }
 
@@ -6692,10 +6701,19 @@ const datPhongKSLoai1User = (data) => {
                                 let tien = phong.donGia
                                 let khuyenMai = phong.khuyenMai
                                 let ghiChu = ''
-                                if (newKhach.diem >= 5) {
+                                if (newKhach.diem === 1) {
+                                    khuyenMai += 5
+                                    ghiChu = "Ưu đãi khách đặt phòng lần 2 giảm 5%"
+                                    await newKhach.save()
+                                }
+                                else if (newKhach.diem === 2) {
                                     khuyenMai += 10
-                                    newKhach.diem = 0
-                                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
+                                    ghiChu = "Ưu đãi khách đặt phòng lần 3 giảm 10%"
+                                    await newKhach.save()
+                                }
+                                else if (newKhach.diem > 2) {
+                                    khuyenMai += 15
+                                    ghiChu = "Ưu đãi khách đặt phòng trên 3 lân giảm 15%"
                                     await newKhach.save()
                                 }
 
@@ -7024,10 +7042,19 @@ const datPhongKSLoai2UserSuccess = (data) => {
                             let tien = phong.donGia
                             let khuyenMai = phong.khuyenMai
                             let ghiChu = ''
-                            if (khach.diem >= 5) {
+                            if (khach.diem === 1) {
+                                khuyenMai += 5
+                                ghiChu = "Ưu đãi khách đặt phòng lần 2 giảm 5%"
+                                await khach.save()
+                            }
+                            else if (khach.diem === 2) {
                                 khuyenMai += 10
-                                khach.diem = 0
-                                ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
+                                ghiChu = "Ưu đãi khách đặt phòng lần 3 giảm 10%"
+                                await khach.save()
+                            }
+                            else if (khach.diem > 2) {
+                                khuyenMai += 15
+                                ghiChu = "Ưu đãi khách đặt phòng trên 3 lân giảm 15%"
                                 await khach.save()
                             }
 
@@ -7182,10 +7209,19 @@ const datPhongKSLoai3User = ({ file, data }) => {
                                 let tien = phong.donGia
                                 let khuyenMai = phong.khuyenMai
                                 let ghiChu = ''
-                                if (newKhach.diem >= 5) {
+                                if (newKhach.diem === 1) {
+                                    khuyenMai += 5
+                                    ghiChu = "Ưu đãi khách đặt phòng lần 2 giảm 5%"
+                                    await newKhach.save()
+                                }
+                                else if (newKhach.diem === 2) {
                                     khuyenMai += 10
-                                    newKhach.diem = 0
-                                    ghiChu = "Ưu đãi khách đặt phòng 5 lần giảm 10%"
+                                    ghiChu = "Ưu đãi khách đặt phòng lần 3 giảm 10%"
+                                    await newKhach.save()
+                                }
+                                else if (newKhach.diem > 2) {
+                                    khuyenMai += 15
+                                    ghiChu = "Ưu đãi khách đặt phòng trên 3 lân giảm 15%"
                                     await newKhach.save()
                                 }
 
