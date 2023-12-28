@@ -5758,7 +5758,7 @@ const datPhongKSAdmin = (data) => {
                 console.log('thanh tien: ', tien, thanhTien);
 
 
-                await db.ksDatPhong.create({
+                let newDatPhong = await db.ksDatPhong.create({
                     id: uuidv4(),
                     idPhong: data.idPhong,
                     idKhach: newKhach.id,
@@ -5784,6 +5784,7 @@ const datPhongKSAdmin = (data) => {
 
                 resolve({
                     errCode: 0,
+                    id: newDatPhong.id
                 });
             }
         } catch (e) {
@@ -7987,7 +7988,8 @@ const datDichVuKS = (data) => {
                     idPhong: data.idPhong,
                     idDichVu: item.id,
                     soLuong: +item.sl,
-                    thoiGian: now
+                    thoiGian: now,
+                    idDatPhong: data.idDatPhong || ''
                 }))
 
                 let newData = await db.ksDatDichVu.bulkCreate(listData, { individualHooks: true })
@@ -8280,6 +8282,45 @@ const unBlockHandleSuaPhong = (data) => {
 
 
 
+const getListDichVuByIdDatPhong = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idDatPhong
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let listDatDV = await db.ksDatDichVu.findAll({
+                    where: {
+                        idDatPhong: data.idDatPhong
+                    },
+                    include: [
+                        {
+                            model: db.ksDichVu
+                        }
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+
+                resolve({
+                    errCode: 0,
+                    data: listDatDV
+                });
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 
 module.exports = {
     addTypeProduct,
@@ -8418,5 +8459,6 @@ module.exports = {
     themKhachHang,
     suaKhachHang,
     blockHandleSuaPhong,
-    unBlockHandleSuaPhong
+    unBlockHandleSuaPhong,
+    getListDichVuByIdDatPhong
 };

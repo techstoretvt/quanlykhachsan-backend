@@ -423,6 +423,7 @@ const routes = {
     suaKhachHang: '/api/v1/sua-khach-hang',
     blockHandleSuaPhong: '/api/v1/block-handle-sua-phong',
     unBlockHandleSuaPhong: '/api/v1/unblock-handle-sua-phong',
+    getListDichVuByIdDatPhong: '/api/v1/get-list-dat-dv-by-id-dat-phong'
 };
 
 module.exports = {

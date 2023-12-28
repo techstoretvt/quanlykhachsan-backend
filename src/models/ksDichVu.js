@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
             // ksDichVu.hasMany(models.ksPhong, { foreignKey: 'idChiNhanh' });
             // ksDichVu.hasMany(models.ksNhanVien, { foreignKey: 'idChiNhanh' });
-            // casi.hasMany(models.baiHat_caSi, { foreignKey: 'idCaSi' });
+            ksDichVu.hasMany(models.ksDatDichVu, { foreignKey: 'idDichVu' });
         }
     }
     ksDichVu.init(

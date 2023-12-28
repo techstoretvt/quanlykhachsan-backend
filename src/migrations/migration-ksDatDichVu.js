@@ -22,6 +22,9 @@ module.exports = {
             soLuong: {
                 type: Sequelize.INTEGER,
             },
+            idDatPhong: {
+                type: Sequelize.STRING,
+            },
 
 
             createdAt: {

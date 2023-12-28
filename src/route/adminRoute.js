@@ -727,7 +727,10 @@ const initAdminRoute = (app) => {
         adminController.unBlockHandleSuaPhong
     );
 
-
+    router.get(
+        routes.getListDichVuByIdDatPhong,
+        adminController.getListDichVuByIdDatPhong
+    );
 
     return app.use('/', router);
 };

@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             // ksDatDichVu.hasMany(models.ksPhong, { foreignKey: 'idChiNhanh' });
             // ksDatDichVu.hasMany(models.ksNhanVien, { foreignKey: 'idChiNhanh' });
             // casi.hasMany(models.baiHat_caSi, { foreignKey: 'idCaSi' });
+            ksDatDichVu.belongsTo(models.ksDichVu, { foreignKey: 'idDichVu' });
         }
     }
     ksDatDichVu.init(
@@ -15,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             thoiGian: DataTypes.DOUBLE,
             idPhong: DataTypes.STRING,
             soLuong: DataTypes.INTEGER,
+            idDatPhong: DataTypes.STRING,
 
 
         },
