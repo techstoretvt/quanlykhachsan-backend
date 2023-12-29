@@ -8321,6 +8321,52 @@ const getListDichVuByIdDatPhong = (data) => {
     });
 };
 
+const chinhSuaNhanVien = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.hoTen || !data.email || !data.sdt || !data.id
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+                let nv = await db.ksNhanVien.findOne({
+                    where: {
+                        id: data.id
+                    },
+                    raw: false
+                })
+
+                if (!nv) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Not found nhanvien!',
+                    });
+                }
+
+                else {
+                    nv.hoTen = data.hoTen
+                    nv.sdt = data.sdt
+                    nv.email = data.email
+                    await nv.save();
+
+                    resolve({
+                        errCode: 0,
+                    });
+                }
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 
 module.exports = {
     addTypeProduct,
@@ -8460,5 +8506,6 @@ module.exports = {
     suaKhachHang,
     blockHandleSuaPhong,
     unBlockHandleSuaPhong,
-    getListDichVuByIdDatPhong
+    getListDichVuByIdDatPhong,
+    chinhSuaNhanVien
 };

@@ -1486,6 +1486,17 @@ const getListDichVuByIdDatPhong = async (req, res, next) => {
     }
 };
 
+const chinhSuaNhanVien = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.chinhSuaNhanVien(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
 
 
 module.exports = {
@@ -1628,5 +1639,6 @@ module.exports = {
     suaKhachHang,
     blockHandleSuaPhong,
     unBlockHandleSuaPhong,
-    getListDichVuByIdDatPhong
+    getListDichVuByIdDatPhong,
+    chinhSuaNhanVien
 };

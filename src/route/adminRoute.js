@@ -675,6 +675,12 @@ const initAdminRoute = (app) => {
         adminController.suaDichVuKS
     );
 
+    router.put(
+        routes.chinhSuaNhanVien,
+        // verifyAccessTokenAdmin,
+        adminController.chinhSuaNhanVien
+    );
+
     router.post(
         routes.datDichVuKS,
         verifyAccessTokenAdmin,
