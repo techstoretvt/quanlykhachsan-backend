@@ -1171,6 +1171,18 @@ const datPhongKSLoai1User = async (req, res, next) => {
         next(e);
     }
 };
+
+const datPhongKSLoai4User = async (req, res, next) => {
+    try {
+        //call service data
+        let data = await adminService.datPhongKSLoai4User(req.body);
+
+        return res.status(200).json(data);
+    } catch (e) {
+        next(e);
+    }
+};
+
 const datPhongKSLoai2User = async (req, res, next) => {
     try {
         //call service data
@@ -1613,6 +1625,7 @@ module.exports = {
     getListDatPhongKSAllTheoThang,
     timKiemPhongKsUser,
     datPhongKSLoai1User,
+    datPhongKSLoai4User,
     datPhongKSLoai2User,
     datPhongKSLoai2UserSuccess,
     datPhongKSLoai3User,

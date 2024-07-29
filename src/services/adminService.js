@@ -6730,7 +6730,7 @@ const datPhongKSLoai1User = (data) => {
                                     timeEnd: data.timeEnd,
                                     khuyenMai: khuyenMai,
                                     thanhTien: thanhTien,
-                                    loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank
+                                    loaiThanhToan: 1,//1 tien mat, 2 paypal, 3 orther bank, 4 tien ao
                                     isThanhToan: 0, //0 chua, 1 roi
                                     trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
                                     ghiChu: ghiChu,
@@ -6783,6 +6783,164 @@ const datPhongKSLoai1User = (data) => {
         }
     });
 };
+
+const datPhongKSLoai4User = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (
+                !data.idPhong || data.idPhong.length === 0 ||
+                !data.timeStart ||
+                !data.timeEnd ||
+                !data.hoTen ||
+                !data.email ||
+                !data.sdt
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required paramteter!',
+                    data,
+                });
+            } else {
+
+
+                //logic
+                let [newKhach, created] = await db.ksKhachHang.findOrCreate({
+                    where: {
+                        sdt: data.sdt
+                    },
+                    defaults: {
+                        id: uuidv4(),
+                        hoTen: data.hoTen,
+                        email: data.email,
+                        diem: 0
+                    },
+                    raw: false
+                })
+                if (!created) {
+                    newKhach.hoTen = data.hoTen
+                    newKhach.email = data.email
+                    await newKhach.save()
+                }
+
+                let checkPhong = true
+                let newArr = []
+                for (const id of data.idPhong) {
+
+                    let phong = await db.ksPhong.findOne({
+                        where: {
+                            id: id
+                        }
+                    })
+
+                    if (!phong || phong.trangThai === 2) {
+                        checkPhong = false
+                    }
+
+                    let checkTime = await db.ksDatPhong.findOne({
+                        where: {
+                            idPhong: id,
+                            timeEnd: {
+                                [Op.gte]: +data.timeStart  // >=
+                            },
+                            timeStart: {
+                                [Op.lte]: +data.timeEnd // <=
+                            },
+                            trangThai: {
+                                [Op.ne]: 3
+                            }
+                        }
+                    })
+
+                    if (checkTime) {
+                        let time1 = new Date(+checkTime.timeStart * 1000)
+                        let time2 = new Date(+checkTime.timeEnd * 1000)
+
+                        return resolve({
+                            errCode: 3,
+                            errMessage: `${phong.tenPhong} đã có người đặt trước: ${time1.getDate()}/${time1.getMonth() + 1}/${time1.getFullYear()} - ${time2.getDate()}/${time2.getMonth() + 1}/${time2.getFullYear()}`
+                        });
+                    }
+
+                    let tien = phong.donGia
+                    let khuyenMai = phong.khuyenMai
+                    let ghiChu = ''
+                    if (newKhach.diem === 1) {
+                        khuyenMai += 5
+                        ghiChu = "Ưu đãi khách đặt phòng lần 2 giảm 5%"
+                        await newKhach.save()
+                    }
+                    else if (newKhach.diem === 2) {
+                        khuyenMai += 10
+                        ghiChu = "Ưu đãi khách đặt phòng lần 3 giảm 10%"
+                        await newKhach.save()
+                    }
+                    else if (newKhach.diem > 2) {
+                        khuyenMai += 15
+                        ghiChu = "Ưu đãi khách đặt phòng trên 3 lân giảm 15%"
+                        await newKhach.save()
+                    }
+
+                    let soNgayThue = (+data.timeEnd - +data.timeStart) / 86400 + 1
+
+                    let thanhTien = Math.floor(tien * (100 - khuyenMai) / 100) * soNgayThue
+
+                    newArr.push({
+                        id: uuidv4(),
+                        idPhong: id,
+                        idKhach: newKhach.id,
+                        timeStart: data.timeStart,
+                        timeEnd: data.timeEnd,
+                        khuyenMai: khuyenMai,
+                        thanhTien: thanhTien,
+                        loaiThanhToan: 4,//1 tien mat, 2 paypal, 3 orther bank, 4 tien ao
+                        isThanhToan: 1, //0 chua, 1 roi
+                        trangThai: 1, //1 dat truoc, 2 nhan phong, 3 ket thuc
+                        ghiChu: ghiChu,
+                        idUser: data.idUser ?? ""
+                    })
+
+
+
+                }
+
+                if (!checkPhong) {
+                    return resolve({
+                        errCode: 3,
+                        errMessage: "Không tìm thấy hoặc phòng không còn hoạt động nửa!"
+                    });
+                }
+
+                await db.ksDatPhong.bulkCreate(newArr,
+                    { individualHooks: true }
+                )
+
+                //gửi email kèm link
+                let linkTT = `${process.env.LINK_FONTEND}/thong-tin-dat-phong/${newKhach.id}`
+                commont.sendEmail(data.email,
+                    "Đặt phòng tại TBT Hotel",
+                    `Thông tin chi tiết vui lòng xem tại: 
+                                <a href="${linkTT}">${linkTT}</a>
+                                `
+                );
+
+
+                //tb socket
+                handleEmit("new_dat_phong", null)
+
+
+                resolve({
+                    errCode: 0,
+                });
+
+
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 
 const datPhongKSLoai2User = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -8480,6 +8638,7 @@ module.exports = {
     getListDatPhongKSAllTheoThang,
     timKiemPhongKsUser,
     datPhongKSLoai1User,
+    datPhongKSLoai4User,
     datPhongKSLoai2User,
     datPhongKSLoai2UserSuccess,
     datPhongKSLoai3User,

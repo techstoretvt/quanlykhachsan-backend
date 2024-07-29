@@ -576,6 +576,11 @@ const initAdminRoute = (app) => {
     );
 
     router.post(
+        routes.datPhongKSLoai4User,
+        adminController.datPhongKSLoai4User
+    );
+
+    router.post(
         routes.datPhongKSLoai2User,
         adminController.datPhongKSLoai2User
     );

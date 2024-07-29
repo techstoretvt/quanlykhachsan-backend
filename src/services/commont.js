@@ -397,6 +397,7 @@ const routes = {
     getListDatPhongKSAllTheoThang: '/api/v1/get-list-dat-phong-ks-all-theo-thang',
     timKiemPhongKsUser: '/api/v1/tim-kiem-phong-ks-user',
     datPhongKSLoai1User: '/api/v1/dat-phong-ks-loai1-user',
+    datPhongKSLoai4User: '/api/v1/dat-phong-ks-loai4-user',
     datPhongKSLoai2User: '/api/v1/dat-phong-ks-loai2-user',
     datPhongKSLoai3User: '/api/v1/dat-phong-ks-loai3-user',
     datPhongKSLoai2UserSuccess: '/api/v1/dat-phong-ks-loai2-user-success',
